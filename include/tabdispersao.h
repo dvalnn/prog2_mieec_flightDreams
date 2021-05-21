@@ -18,12 +18,12 @@ typedef unsigned long sond_func(int, int, int);
 */
 typedef struct
 {
-  hash_func *hfunc;    /* apontador para função de dispersão */
-  sond_func *sfunc;    /* apontador para função de sondagem */
-  int capacidade;      /* número de posições alocadas de ‘nos’ */
-  int tamanho;         /* número de posições preenchidas de ‘nos’ */
-  no_grafo **nos;      /* vetor de apontadores para nó */
-  int *estado_celulas; /* vetor de indicadores de estado 0:vazio, 1:válido, -1:removido */
+    hash_func *hfunc;    /* apontador para função de dispersão */
+    sond_func *sfunc;    /* apontador para função de sondagem */
+    int capacidade;      /* número de posições alocadas de ‘nos’ */
+    int tamanho;         /* número de posições preenchidas de ‘nos’ */
+    no_grafo **nos;      /* vetor de apontadores para nó */
+    int *estado_celulas; /* vetor de indicadores de estado 0:vazio, 1:válido, -1:removido */
 } tabela_dispersao;
 
 /*
