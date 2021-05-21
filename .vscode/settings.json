@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "heap.h": "c",
+        "stnova.h": "c",
+        "tabdispersao.h": "c",
+        "time.h": "c"
+    }
+}
