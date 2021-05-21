@@ -181,7 +181,7 @@ int verifica_atualiza_lugares(grafo *g) {
 
     int n = 0;
 
-    char ficheiro_atualiza[] = "flightPlan_atualiza.txt";
+    char ficheiro_atualiza[] = "./resources/flightPlan_atualiza.txt";
     aresta_grafo **testearesta = atualiza_lugares(ficheiro_atualiza, g, &n);
 
     if (!testearesta) {
@@ -422,7 +422,7 @@ int verifica_st(grafo *g) {
 int main() {
     int errorCount = 0, error;
 
-    char ficheiro[] = "flightPlan_small.txt";
+    char ficheiro[] = "./resources/flightPlan_small.txt";
     grafo *g = grafo_importa(ficheiro);
 
     printf("INICIO DOS TESTES\n");
@@ -537,7 +537,7 @@ int main() {
 
     printf("\nTESTES DA ST NOVA\n\n");
 
-    char ficheiro1[] = "flightPlan.txt";
+    char ficheiro1[] = "./resources/flightPlan.txt";
     grafo *g1 = grafo_importa(ficheiro1);
 
     error = verifica_st(g1);
