@@ -8,7 +8,7 @@ INC := ../include
 OBJ := ./build
 DEBUG := ./debug
 BIN := ./bin
-EXECUTABLE_NAME := <insert_name_here>
+EXECUTABLE_NAME := flightDreams
 SOURCE_EXTENSION := c
 HEADER_EXTENSION := h
 
