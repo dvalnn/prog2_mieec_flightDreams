@@ -2,7 +2,7 @@
 /*   Fila de prioridade / min-heap | PROG2 | MIEEC | 2017/18     */
 /*****************************************************************/
 
-#include "heap.h"
+#include "../include/heap.h"
 
 #include <stdio.h>
 #include <stdlib.h>

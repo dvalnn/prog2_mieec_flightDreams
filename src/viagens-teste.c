@@ -9,9 +9,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "grafo.h"
-#include "stnova.h"
-#include "tabdispersao.h"
+#include "../include/grafo.h"
+#include "../include/stnova.h"
+#include "../include/tabdispersao.h"
 
 /* VERIFICACOES IMPLEMENTADAS */
 

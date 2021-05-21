@@ -2,13 +2,13 @@
 /*         Tabela de Dispersao | PROG2 | MIEEC | 2020/21         */
 /*****************************************************************/
 
-#include "tabdispersao.h"
+#include "../include/tabdispersao.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "grafo.h"
+#include "../include/grafo.h"
 
 tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc) {
     return NULL;

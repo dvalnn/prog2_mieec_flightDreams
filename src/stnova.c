@@ -2,7 +2,7 @@
 /*    Estrutura nova a implementar | PROG2 | MIEEC | 2020/21     */
 /*****************************************************************/
 
-#include "stnova.h"
+#include "../include/stnova.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,14 +2,14 @@
 /*          Grafo direcionado | PROG2 | MIEEC | 2020/21          */
 /*****************************************************************/
 
-#include "grafo.h"
+#include "../include/grafo.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "heap.h"
+#include "../include/heap.h"
 
 grafo *grafo_novo() {
     grafo *g = (grafo *)malloc(sizeof(grafo));
