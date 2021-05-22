@@ -25,8 +25,7 @@ typedef struct
 
 /* no_grafo é uma estrutura que tem o nome da cidade e 
    um vetor de apontadores para os destinatários */
-typedef struct no_grafos
-{
+typedef struct no_grafos {
     char *cidade;               /* string com nome da cidade */
     int tamanho;                /* número de posições válidas de ‘arestas’ */
     aresta_grafo **arestas;     /* vetor de apontadores para ‘no_grafo’ */

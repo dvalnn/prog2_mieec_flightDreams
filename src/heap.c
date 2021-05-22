@@ -2,7 +2,8 @@
 /*   Fila de prioridade / min-heap | PROG2 | MIEEC | 2017/18     */
 /*****************************************************************/
 
-#include "heap.h"
+#include "../include/heap.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,8 +15,7 @@
 
 int menor_que(elemento *e1, elemento *e2);
 
-heap *heap_nova(int capacidade)
-{
+heap *heap_nova(int capacidade) {
     heap *h = (heap *)malloc(sizeof(heap));
 
     if (!h)
@@ -25,8 +25,7 @@ heap *heap_nova(int capacidade)
     h->capacidade = capacidade;
     h->elementos = (elemento **)calloc(capacidade + 1, sizeof(elemento *));
 
-    if (!h->elementos)
-    {
+    if (!h->elementos) {
         free(h);
         return NULL;
     }
@@ -35,16 +34,14 @@ heap *heap_nova(int capacidade)
     return h;
 }
 
-void heap_apaga(heap *h)
-{
+void heap_apaga(heap *h) {
     int i;
 
     if (!h)
         return;
 
     /* apaga todos os elementos e respetivas strings */
-    for (i = RAIZ; i <= h->tamanho; i++)
-    {
+    for (i = RAIZ; i <= h->tamanho; i++) {
         //    free(h->elementos[i]->no);
         free(h->elementos[i]);
         h->elementos[i] = NULL;
@@ -54,8 +51,7 @@ void heap_apaga(heap *h)
     free(h);
 }
 
-elemento *elemento_novo(double prioridade, no_grafo *no)
-{
+elemento *elemento_novo(double prioridade, no_grafo *no) {
     if (!no)
         return NULL;
 
@@ -70,8 +66,7 @@ elemento *elemento_novo(double prioridade, no_grafo *no)
     return elem;
 }
 
-int heap_insere(heap *h, no_grafo *no, double prioridade)
-{
+int heap_insere(heap *h, no_grafo *no, double prioridade) {
     elemento *aux = NULL, *elem;
     int i = 0;
 
@@ -89,8 +84,7 @@ int heap_insere(heap *h, no_grafo *no, double prioridade)
     h->elementos[i] = elem;
 
     /* enquanto elemento for mais prioritario do que o respetivo pai, troca-os */
-    while (i != RAIZ && menor_que(h->elementos[i], h->elementos[PAI(i)]))
-    {
+    while (i != RAIZ && menor_que(h->elementos[i], h->elementos[PAI(i)])) {
         aux = h->elementos[PAI(i)];
         h->elementos[PAI(i)] = h->elementos[i];
         h->elementos[i] = aux;
@@ -99,8 +93,7 @@ int heap_insere(heap *h, no_grafo *no, double prioridade)
     return 1;
 }
 
-no_grafo *heap_remove(heap *h)
-{
+no_grafo *heap_remove(heap *h) {
     int i, filho_maior;
     elemento *aux;
     no_grafo *ret;
@@ -120,8 +113,7 @@ no_grafo *heap_remove(heap *h)
     i = RAIZ;
 
     /* enquanto nao chegar 'a base da heap */
-    while (FILHO_ESQ(i) <= h->tamanho)
-    {
+    while (FILHO_ESQ(i) <= h->tamanho) {
         filho_maior = FILHO_ESQ(i);
 
         /* verifica se existe filho 'a direita e se este e' mais prioritario do que 'a esquerda */
@@ -129,29 +121,24 @@ no_grafo *heap_remove(heap *h)
             filho_maior = FILHO_DIR(i);
 
         /* enquanto elemento for mais prioritario do que o respetivo pai, troca-os */
-        if (menor_que(h->elementos[filho_maior], h->elementos[i]))
-        {
+        if (menor_que(h->elementos[filho_maior], h->elementos[i])) {
             aux = h->elementos[filho_maior];
             h->elementos[filho_maior] = h->elementos[i];
             h->elementos[i] = aux;
             i = filho_maior;
-        }
-        else
+        } else
             break;
     }
 
     return ret;
 }
 
-void heap_imprime(heap *h, int indice)
-{
+void heap_imprime(heap *h, int indice) {
     int i, nivel = 0;
 
-    if (indice <= h->tamanho)
-    {
+    if (indice <= h->tamanho) {
         i = indice;
-        while (i > 1)
-        {
+        while (i > 1) {
             i = i / 2;
             nivel++;
         }
@@ -167,10 +154,8 @@ void heap_imprime(heap *h, int indice)
     }
 }
 
-int menor_que(elemento *e1, elemento *e2)
-{
-    if (e1 == NULL || e2 == NULL)
-    {
+int menor_que(elemento *e1, elemento *e2) {
+    if (e1 == NULL || e2 == NULL) {
         return 0;
     }
 
