@@ -332,7 +332,32 @@ no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
 }
 
 no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco_max, int *n) {
-    return NULL;
+    if (!g || !destino || preco_max <= 0 || !n)
+        return NULL;
+
+    //tamanho inicial do vetor de retorno
+    int encontrados_size = 50;
+    int n_econtrados = 0;
+    no_grafo **voos_encontrados = calloc(encontrados_size, sizeof(*voos_encontrados));
+
+    for (int node = 0; node < g->tamanho; node++)
+        for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
+            if (!strcmp(g->nos[node]->arestas[aresta]->destino->cidade, destino) &&
+                g->nos[node]->arestas[aresta]->chegada.tm_mday == chegada.tm_mday &&
+                g->nos[node]->arestas[aresta]->preco <= preco_max) {
+                if (n_econtrados == encontrados_size) {
+                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));
+                    encontrados_size *= 2;
+                }
+
+                voos_encontrados[n_econtrados] = g->nos[node];
+                n_econtrados++;
+            }
+
+    voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
+    *n = n_econtrados;
+
+    return voos_encontrados;
 }
 
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
