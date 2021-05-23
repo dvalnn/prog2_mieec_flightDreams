@@ -26,63 +26,70 @@ typedef struct
     int *estado_celulas; /* vetor de indicadores de estado 0:vazio, 1:válido, -1:removido */
 } tabela_dispersao;
 
-/*
-*  cria uma tabela de dispersão
-*  parametro capacidade - capacidade da tabela de dispersão
-*  parametro hash_func - apontador para função de dispersão a ser usada nesta tabela
-*  parametro sond_func - apontador para função de sondagem a ser usada nesta tabela
-*  retorna uma tabela de dispersão vazia que usa a função de dispersão e a função de sondagem indicadas
-*/
+/**
+ * @brief cria uma tabela de dispersão
+ * 
+ * @param capacidade capacidade da tabela de dispersão
+ * @param hfunc apontador para função de dispersão a ser usada nesta tabela
+ * @param sfunc apontador para função de sondagem a ser usada nesta tabela
+ * @return tabela_dispersao* uma tabela de dispersão vazia que usa a função de dispersão e a função de sondagem indicadas
+ */
 tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc);
 
-/*
-*  adiciona um novo nó à tabela de dispersão
-*  parametro td - tabela onde adicionar o nó
-*  parametro entrada - nó a ser adicionado
-*  retorna o índice do nó adicionado se for bem sucedido e -1 em caso contrário
-*/
+/**
+ * @brief adiciona um novo nó à tabela de dispersão
+ * 
+ * @param td tabela onde adicionar o nó
+ * @param entrada nó a ser adicionado
+ * @return int o índice do nó adicionado se for bem sucedido e -1 em caso contrário
+ */
 int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada);
 
-/*
-*  remove um nó da tabela não desalocando a memória do mesmo
-*  parametro td - tabela onde remover o nó
-*  parametro saida - nó a ser removido
-*  retorna 0 se a remoção for bem sucedido e -1 em caso contrário
-*/
+/**
+ * @brief remove um nó da tabela não desalocando a memória do mesmo
+ * 
+ * @param td tabela onde remover o nó
+ * @param saida nó a ser removido
+ * @return int 0 se a remoção for bem sucedido e -1 em caso contrário
+ */
 int tabela_remove(tabela_dispersao *td, no_grafo *saida);
 
-/*
-*  elimina uma tabela, removendo todos os nós e apaga a memória da estrutura da tabela de dispersão 
-*  parametro td - tabela de dispersão a ser apagada
-*  retorna 0 se for bem sucedido e -1 em caso contrário
-*/
-void tabela_apaga(tabela_dispersao *td);
+/**
+ * @brief elimina uma tabela, removendo todos os nós e apaga a memória da estrutura da tabela de dispersão 
+ * 
+ * @param td tabela de dispersão a ser apagada
+ * @return 0 se for bem sucedido e -1 em caso contrário
+ */
+int tabela_apaga(tabela_dispersao *td);
 
-/*
-*  verifica se determinada cidade existe na tabela
-*  parametro td - tabela onde procurar o valor
-*  parametro cidade - cidade a procurar na tabela
-*  retorna o índice do nó encontrado na tabela se for bem sucedido e -1 em caso contrário
-*/
+/**
+ * @brief verifica se determinada cidade existe na tabela
+ * 
+ * @param td tabela onde procurar o valor
+ * @param cidade cidade a procurar na tabela
+ * @return int o índice do nó encontrado na tabela se for bem sucedido e -1 em caso contrário
+ */
 int tabela_existe(tabela_dispersao *td, const char *cidade);
 
-/*
-*  cria e preenche uma nova tabela de dispersão a partir do grafo
-*  parametro g - apontador para o grafo 
-*  parametro capacidade - capacidade da nova tabela de dispersão 
-*  retorna a tabela de dispersão criada ou NULL se ocorrer algum erro
-*/
+/**
+ * @brief cria e preenche uma nova tabela de dispersão a partir do grafo
+ * 
+ * @param g apontador para o grafo
+ * @param capacidade capacidade da nova tabela de dispersão 
+ * @return tabela_dispersao* a tabela de dispersão criada ou NULL se ocorrer algum erro
+ */
 tabela_dispersao *tabela_carrega(grafo *g, int capacidade);
 
-/*
-*  calcula hash com base na seguinte formula:
-*            hash(i) = hash(i-1) + chave[i]
-*    em que hash(0) = 7
-*
-*  parametro chave - string para a qual se pretende calcular o chave de hash
-*  parametro tamanho - tamanho da tabela de dispersão
-*  nota - chave[i] é o caracter no índice de i da chave
-*/
+/**
+ * @brief calcula hash com base na seguinte formula:
+ *            hash(i) = hash(i-1) + chave[i]
+ *        em que hash(0) = 7 
+ * 
+ * @param chave string para a qual se pretende calcular o chave de hash
+ * @param tamanho tamanho da tabela de dispersão
+ * @return unsigned long hash value
+ * @remark nota - chave[i] é o caracter no índice de i da chave
+ */
 unsigned long hash_krm(const char *chave, int tamanho);
 
 unsigned long sond_rh(int pos, int tentativas, int tamanho);
