@@ -294,10 +294,27 @@ int aresta_apaga(aresta_grafo *aresta) {
 }
 
 int no_apaga(no_grafo *no) {
-    return -1;
+    if (!no)
+        return -1;
+
+    free(no->cidade);
+
+    for (int i = 0; i < no->tamanho; i++)
+        aresta_apaga(no->arestas[i]);
+    free(no->arestas);
+
+    free(no);
+    return 0;
 }
 
 void grafo_apaga(grafo *g) {
+    if(!g)
+        return;
+
+    for (int i = 0; i < g->tamanho; i++)
+        no_apaga(g->nos[i]);
+
+    free(g);
 }
 
 no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
