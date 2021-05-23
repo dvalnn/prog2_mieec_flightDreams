@@ -21,7 +21,7 @@ OBJECTS := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(OBJ)/%.o, $(SOURCES))
 DEBUG_OBJ := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(DEBUG)/%.dbg, $(SOURCES))
 
 #debug and valgrind flags:
-COMPILE_FLAGS = -Wall -Wextra -Werror -Wshadow -pedantic -O2
+COMPILE_FLAGS = -Wall -Wextra -Wshadow -pedantic -O2 #-Werror
 DEBUG_FLAGS = -g -ggdb3
 VALGRING_FLAGS = --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt
 
@@ -35,16 +35,18 @@ $(EXECUTABLE_NAME): $(OBJECTS)
 debug: makeDebug makeBin $(EXECUTABLE_NAME).dbg
 
 $(EXECUTABLE_NAME).dbg: $(DEBUG_OBJ)
-	$(CC) $(COMPILE_FLAGS) (DEBUG_FLAGS) $(DEBUG_OBJ) -o $(BIN)/$@
+	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) $(DEBUG_OBJ) -o $(BIN)/$@
 
 # compiles every source file into its respective object file
 # $@ = name of rule/recipe target
 # $< = name of first dependency of this recipe
 $(OBJ)/%.o: $(SRC)/%.$(SOURCE_EXTENSION)
-	$(CC) -c $< -o $@
+	$(CC)  -c $< -o $@
+#	$(CC) $(COMPILE_FLAGS) -c $< -o $@
 
 $(DEBUG)/%.dbg: $(SRC)/%.$(SOURCE_EXTENSION)
 	$(CC) $(DEBUG_FLAGS) -c $< -o $@
+#	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 # create the build folder if it doesn't already exist
 makeBuild:
