@@ -265,6 +265,7 @@ no_grafo *no_remove(grafo *g, char *cidade) {
 
     g->tamanho--;
     no_grafo *no_para_remover = g->nos[g->tamanho];
+    g->nos[g->tamanho] = NULL;
     no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
 
     if (g->tamanho)
