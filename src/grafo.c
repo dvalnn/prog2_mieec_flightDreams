@@ -246,9 +246,7 @@ no_grafo *no_remove(grafo *g, char *cidade) {
 
     no_grafo *no_para_remover = g->nos[g->tamanho - 1];
 
-    g->nos[g->tamanho - 1] = NULL;
-
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos));
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos[0]));
     if (check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c linha 254 - no_remove() - g->nos realloc"))
         return NULL;
 
