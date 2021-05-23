@@ -41,12 +41,12 @@ $(EXECUTABLE_NAME).dbg: $(DEBUG_OBJ)
 # $@ = name of rule/recipe target
 # $< = name of first dependency of this recipe
 $(OBJ)/%.o: $(SRC)/%.$(SOURCE_EXTENSION)
-	$(CC)  -c $< -o $@
-#	$(CC) $(COMPILE_FLAGS) -c $< -o $@
+	$(CC) $(COMPILE_FLAGS) -c $< -o $@
+#	$(CC)  -c $< -o $@
 
 $(DEBUG)/%.dbg: $(SRC)/%.$(SOURCE_EXTENSION)
-	$(CC) $(DEBUG_FLAGS) -c $< -o $@
-#	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
+	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
+#	$(CC) $(DEBUG_FLAGS) -c $< -o $@
 
 # create the build folder if it doesn't already exist
 makeBuild:
