@@ -11,6 +11,21 @@
 
 #include "../include/heap.h"
 
+#define TRUE 1
+#define FALSE 0
+
+// * mensagens de erro
+#define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao realocar memória.\n"
+
+int check_ptr(void *ptr, const char *msg, const char *origem) {
+    if (!ptr) {
+        printf("%s", msg);
+        printf("\n[INFO] - Erro originado por: \"%s\"\n", origem);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 grafo *grafo_novo() {
     grafo *g = (grafo *)malloc(sizeof(grafo));
     g->tamanho = 0;
@@ -231,21 +246,18 @@ no_grafo *no_remove(grafo *g, char *cidade) {
 
     no_grafo *no_para_remover = g->nos[g->tamanho - 1];
 
-    for (int node = 0; node < g->tamanho; node++) {
-        if (g->nos[node] == no_para_remover)
-            continue;
-        remove_arestas(g->nos[node], no_para_remover);
-    }
-
     g->nos[g->tamanho - 1] = NULL;
-    
-    no_grafo **auxiliar_realloc = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos));
-    if(!auxiliar_realloc)
+
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos));
+    if (check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c linha 254 - no_remove() - g->nos realloc"))
         return NULL;
 
-    g->nos = auxiliar_realloc;
+    g->nos = novo_vetor_nos;
     g->tamanho--;
-    
+
+    for (int node = 0; node < g->tamanho - 1; node++)
+        remove_arestas(g->nos[node], no_para_remover);
+
     return no_para_remover;
 }
 
