@@ -156,7 +156,16 @@ int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companh
 }
 
 no_grafo *no_remove(grafo *g, char *cidade) {
-    return NULL;
+    no_grafo *no_removido = NULL;
+
+    for (int i = 0; i < g->tamanho; i++)
+        if (!strcmp(cidade, g->nos[i]->cidade)) {
+            no_removido = g->nos[i];
+            g->nos[i] = NULL;
+            break;
+        }
+
+    return no_removido;
 }
 
 int aresta_apaga(aresta_grafo *aresta) {
