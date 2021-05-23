@@ -230,6 +230,12 @@ void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
     *b = aux;
 }
 
+/**
+ * @brief remove uma aresta do vetor de arestas do no, conservando ordenação.
+ * 
+ * @param node nó de onde remover a aresta
+ * @param aresta_index indíce da aresta a ser removida
+ */
 void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
     if (aresta_apaga(node->arestas[aresta_index]))
         return;
