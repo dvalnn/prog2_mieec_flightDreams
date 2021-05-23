@@ -31,6 +31,18 @@ no_grafo *encontra_no(grafo *g, char *cidade) {
     return NULL;
 }
 
+int encontra_no_idx(grafo *g, char *cidade) {
+    if (!g || !cidade)
+        return -1;
+
+    // pesquisa por cidade no vetor de nós
+    for (int i = 0; i < g->tamanho; i++) {
+        if (strcmp(g->nos[i]->cidade, cidade) == 0)
+            return i;
+    }
+    return -1;
+}
+
 no_grafo *no_insere(grafo *g, char *cidade) {
     if (!g || !cidade)
         return NULL;
@@ -86,6 +98,28 @@ int existe_aresta(no_grafo *origem, no_grafo *destino, char *codigo) {
     }
 
     return 0;
+}
+
+/**
+ * @brief tem função semelhante a existe_aresta(), mas retorna um apontador para a (primeira) aresta encontrada.
+ *        Caso código seja NULL, não é tido em conta para a seleção de aresta.
+ * 
+ * @param origem 
+ * @param destino 
+ * @param codigo 
+ * @return aresta_grafo* apontador para a aresta encontrada
+ */
+aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo) {
+    if (!origem || !destino)
+        return NULL;
+
+    //pesquisa em todas as arestas se existe
+    for (int i = 0; i < origem->tamanho; i++) {
+        if ((origem->arestas[i]->destino == destino) && !strcmp(origem->arestas[i]->codigo, codigo))
+            return origem->arestas[i];
+    }
+
+    return NULL;
 }
 
 int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companhia, data partida, data chegada, float preco, int lugares) {
@@ -155,17 +189,64 @@ int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companh
     return 0;
 }
 
+/**
+ * @brief troca a posição entre dois nós do grafo
+ * 
+ * @param a &no_grafo * a
+ * @param b &no_grafo * b
+ */
+void no_grafo_swap(no_grafo **a, no_grafo **b) {
+    no_grafo *aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
+}
+
+/**
+ * @brief troca a posição entre duas arestas de um nó
+ * 
+ * @param a &aresta_grafo * a
+ * @param b &aresta_grafo * b
+ */
+void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
+    aresta_grafo *aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
+}
+
+void remove_arestas(no_grafo *origem, no_grafo *destino) {
+}
+
 no_grafo *no_remove(grafo *g, char *cidade) {
-    no_grafo *no_removido = NULL;
+    if (!g || !cidade)
+        return NULL;
 
-    for (int i = 0; i < g->tamanho; i++)
-        if (!strcmp(cidade, g->nos[i]->cidade)) {
-            no_removido = g->nos[i];
-            g->nos[i] = NULL;
-            break;
-        }
+    int pos_para_remover = encontra_no_idx(g, cidade);
+    if (pos_para_remover == -1)
+        return NULL;
 
-    return no_removido;
+    if (pos_para_remover != g->tamanho - 1)
+        no_grafo_swap(g->nos[pos_para_remover], g->nos[g->tamanho - 1]);
+
+    no_grafo *no_para_remover = g->nos[g->tamanho - 1];
+
+    for (int node = 0; node < g->tamanho; node++) {
+        if (g->nos[node] == no_para_remover)
+            continue;
+        remove_arestas(g->nos[node], no_para_remover);
+    }
+
+    g->nos[g->tamanho - 1] = NULL;
+    
+    no_grafo **auxiliar_realloc = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos));
+    if(!auxiliar_realloc)
+        return NULL;
+
+    g->nos = auxiliar_realloc;
+    g->tamanho--;
+    
+    return no_para_remover;
 }
 
 int aresta_apaga(aresta_grafo *aresta) {
