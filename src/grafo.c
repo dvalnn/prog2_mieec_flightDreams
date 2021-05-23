@@ -237,17 +237,17 @@ void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
  * @param aresta_index indíce da aresta a ser removida
  */
 void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
-    if (aresta_apaga(node->arestas[aresta_index]))
-        return;
-
     for (int pos = aresta_index; pos < node->tamanho - 1; pos++)
-        node->arestas[pos] = node->arestas[pos + 1];
+        aresta_grafo_swap(&node->arestas[pos], &node->arestas[pos + 1]);
 
+    aresta_apaga(node->arestas[node->tamanho - 1]);
     node->tamanho--;
 
     aresta_grafo **new_vec = (aresta_grafo **)realloc(node->arestas, (node->tamanho) * sizeof(node->arestas[0]));
-    if (check_ptr(new_vec, REALLOC_ERROR_MSG, "grafo.c - aresta_vetor_apaga() - node->arestas realloc"))
-        return;
+
+    if (node->tamanho)
+        if (check_ptr(new_vec, REALLOC_ERROR_MSG, "grafo.c - aresta_vetor_apaga() - node->arestas realloc"))
+            return;
 
     node->arestas = new_vec;
 }
@@ -308,7 +308,7 @@ int no_apaga(no_grafo *no) {
 }
 
 void grafo_apaga(grafo *g) {
-    if(!g)
+    if (!g)
         return;
 
     for (int i = 0; i < g->tamanho; i++)
