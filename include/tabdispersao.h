@@ -58,9 +58,8 @@ int tabela_remove(tabela_dispersao *td, no_grafo *saida);
  * @brief elimina uma tabela, removendo todos os nós e apaga a memória da estrutura da tabela de dispersão 
  * 
  * @param td tabela de dispersão a ser apagada
- * @return 0 se for bem sucedido e -1 em caso contrário
  */
-int tabela_apaga(tabela_dispersao *td);
+void tabela_apaga(tabela_dispersao *td);
 
 /**
  * @brief verifica se determinada cidade existe na tabela
