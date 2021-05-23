@@ -179,7 +179,7 @@ no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida
  * @param ficheiro nome do ficheiro que contém as informações atualizadas
  * @param g apontador para o grafo a alterar
  * @param n tamanho do vetor de arestas retornado
- * @return aresta_grafo** Remove do grafo e retorna as arestas/voos cujos lugares desceram para 
+ * @return aresta_grafo** remove do grafo e retorna as arestas/voos cujos lugares desceram para 
  *                        zero por via de um vetor de apontadores para aresta_grafo.
  *                        o tamanho do vetor deve ser retornado por referência através do argumento ‘n’.
  *                        Retorna NULL em caso de erro
