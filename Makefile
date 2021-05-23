@@ -21,7 +21,8 @@ OBJECTS := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(OBJ)/%.o, $(SOURCES))
 DEBUG_OBJ := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(DEBUG)/%.dbg, $(SOURCES))
 
 #debug and valgrind flags:
-DEBUG_FLAGS = -g -Wall -ggdb3
+COMPILE_FLAGS = -Wall -Wextra -Werror -Wshadow -pedantic -O2
+DEBUG_FLAGS = -g -ggdb3
 VALGRING_FLAGS = --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt
 
 # compiles every object into the final executable
@@ -29,12 +30,12 @@ all: makeBuild makeBin $(EXECUTABLE_NAME)
 	@echo -e '\n\033[1;33mfinished compiling\033[0m'
 
 $(EXECUTABLE_NAME): $(OBJECTS)
-	$(CC) -Wall $(OBJECTS) -o $(BIN)/$@
+	$(CC) $(COMPILE_FLAGS) $(OBJECTS) -o $(BIN)/$@
 
 debug: makeDebug makeBin $(EXECUTABLE_NAME).dbg
 
 $(EXECUTABLE_NAME).dbg: $(DEBUG_OBJ)
-	$(CC) $(DEBUG_FLAGS) $(DEBUG_OBJ) -o $(BIN)/$@
+	$(CC) $(COMPILE_FLAGS) (DEBUG_FLAGS) $(DEBUG_OBJ) -o $(BIN)/$@
 
 # compiles every source file into its respective object file
 # $@ = name of rule/recipe target
