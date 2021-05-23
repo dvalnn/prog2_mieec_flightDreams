@@ -87,7 +87,7 @@ int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companh
  * 
  * @param g apontador para o grafo em que se pretende remover o nó
  * @param cidade apontador para a cidade cujo o nó se pretende remover
- * @return no_grafo* apontador para o nó do grafo referente a cidade sem apagá-lo 
+ * @return no_grafo* apontador para o nó do grafo referente a cidade sem apagá-lo. 
  *                   NULL em caso de insucesso
  */
 no_grafo *no_remove(grafo *g, char *cidade);
