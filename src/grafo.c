@@ -20,7 +20,7 @@
 int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
         printf("%s", msg);
-        printf("\n[INFO] - Erro originado por: \"%s\"\n", origem);
+        printf("[INFO] - Erro originado por: \"%s\"\n", origem);
         return TRUE;
     }
     return FALSE;
@@ -230,7 +230,20 @@ void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
     *b = aux;
 }
 
-void remove_arestas(no_grafo *origem, no_grafo *destino) {
+void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
+    if (aresta_apaga(node->arestas[aresta_index]))
+        return;
+
+    for (int pos = aresta_index; pos < node->tamanho - 1; pos++)
+        node->arestas[pos] = node->arestas[pos + 1];
+
+    node->tamanho--;
+
+    aresta_grafo **new_vec = (aresta_grafo **)realloc(node->arestas, (node->tamanho) * sizeof(node->arestas[0]));
+    if (check_ptr(new_vec, REALLOC_ERROR_MSG, "grafo.c - aresta_vetor_apaga() - node->arestas realloc"))
+        return;
+
+    node->arestas = new_vec;
 }
 
 no_grafo *no_remove(grafo *g, char *cidade) {
@@ -242,25 +255,36 @@ no_grafo *no_remove(grafo *g, char *cidade) {
         return NULL;
 
     if (pos_para_remover != g->tamanho - 1)
-        no_grafo_swap(g->nos[pos_para_remover], g->nos[g->tamanho - 1]);
+        no_grafo_swap(&g->nos[pos_para_remover], &g->nos[g->tamanho - 1]);
 
     no_grafo *no_para_remover = g->nos[g->tamanho - 1];
 
     no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos[0]));
-    if (check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c linha 254 - no_remove() - g->nos realloc"))
+    if (check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
         return NULL;
 
     g->nos = novo_vetor_nos;
     g->tamanho--;
 
-    for (int node = 0; node < g->tamanho - 1; node++)
-        remove_arestas(g->nos[node], no_para_remover);
+    for (int node = 0; node < g->tamanho; node++)
+        for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
+            if (g->nos[node]->arestas[aresta]->destino == no_para_remover) {
+                aresta_vetor_apaga(g->nos[node], aresta);
+                aresta--;
+            }
 
     return no_para_remover;
 }
 
 int aresta_apaga(aresta_grafo *aresta) {
-    return -1;
+    if (!aresta)
+        return -1;
+
+    free(aresta->codigo);
+    free(aresta->companhia);
+    free(aresta);
+
+    return 0;
 }
 
 int no_apaga(no_grafo *no) {
