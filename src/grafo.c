@@ -260,17 +260,16 @@ no_grafo *no_remove(grafo *g, char *cidade) {
     if (pos_para_remover == -1)
         return NULL;
 
-    if (pos_para_remover != g->tamanho - 1)
+    if (pos_para_remover != (g->tamanho - 1))
         no_grafo_swap(&g->nos[pos_para_remover], &g->nos[g->tamanho - 1]);
 
-    no_grafo *no_para_remover = g->nos[g->tamanho - 1];
-
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos[0]));
-    if (check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
-        return NULL;
-
-    g->nos = novo_vetor_nos;
     g->tamanho--;
+    no_grafo *no_para_remover = g->nos[g->tamanho];
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
+
+    if (g->tamanho)
+        if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
+            g->nos = novo_vetor_nos;
 
     for (int node = 0; node < g->tamanho; node++)
         for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
