@@ -318,6 +318,16 @@ void grafo_apaga(grafo *g) {
 }
 
 no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
+    if (!g || !codigo || !aresta_pos)
+        return NULL;
+
+    for (int node = 0; node < g->tamanho; node++)
+        for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
+            if (!strcmp(g->nos[node]->arestas[aresta]->codigo, codigo)) {
+                *aresta_pos = aresta;
+                return g->nos[node];
+            }
+
     return NULL;
 }
 
