@@ -363,9 +363,9 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
     
     if(!g || !origem || !destino || !n) return NULL; // !partida ? 
-    
+    heap * 
 
-        for(int vertices = 0 ;  vertices < g->tamanho ;vertices++) {
+        for(int vertice = 0 ;  vertice < g->tamanho ;vertice++) {
             
         }
     return NULL;
@@ -389,6 +389,29 @@ no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data parti
 //  v.dist = u.dist + cost(u,v) // Replace as necessary
 //  v.prev = u // Maintain pointers for path
 //  PQ.replaceKey(v, v.dist)
+
+
+// dos slides
+/* DIJKSTRA COMPLEXIDADE – HEAP
+BINÁRIO
+PROGRAMAÇÃO 2 | MIEEC | 2020/21
+function dijkstra(G, s): */
+ // Input: A graph G with vertices V, and a start vertex s
+ // Output: Nothing
+ // Purpose: Decorate nodes with shortest distance from s
+/*  for v in V: // O(V)
+ v.dist = infinity
+ v.prev = null
+ s.dist = 0
+ PQ = PriorityQueue(V)
+ while PQ not empty: // O(V)
+ u = PQ.removeMin() // O(log(V))
+ for all edges (u, v): // O(E)
+ if v.dist > u.dist + cost(u, v):
+ v.dist = u.dist + cost(u,v)
+ v.prev = u
+ PQ.replaceKey(v, v.dist) // O(log(V))
+ */
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
     return NULL;
