@@ -14,8 +14,11 @@
 #define TRUE 1
 #define FALSE 0
 
+#define INFINITY __INT_MAX__
+
 // * mensagens de erro
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao realocar memória.\n"
+#define CALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória.\n"
 
 int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
@@ -265,8 +268,8 @@ no_grafo *no_remove(grafo *g, char *cidade) {
 
     g->tamanho--;
     no_grafo *no_para_remover = g->nos[g->tamanho];
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));  //!analisar
     g->nos[g->tamanho] = NULL;
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0])); //!analisar
 
     if (g->tamanho)
         if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
@@ -346,13 +349,14 @@ no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
 }
 
 no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco_max, int *n) {
-    if (!g || !destino || preco_max <= 0 || !n)
-        return NULL;
+    if (!g || !destino || preco_max <= 0 || !n) return NULL;  //? chegada?
 
     //tamanho inicial do vetor de retorno
     int encontrados_size = 50;
     int n_econtrados = 0;
     no_grafo **voos_encontrados = calloc(encontrados_size, sizeof(*voos_encontrados));
+    if (check_ptr(voos_encontrados, CALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
+        return NULL;
 
     for (int node = 0; node < g->tamanho; node++)
         for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
@@ -360,7 +364,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
                 g->nos[node]->arestas[aresta]->chegada.tm_mday == chegada.tm_mday &&
                 g->nos[node]->arestas[aresta]->preco <= preco_max) {
                 if (n_econtrados == encontrados_size) {
-                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));
+                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));  //! check_ptr também?
                     encontrados_size *= 2;
                 }
 
@@ -369,63 +373,108 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
             }
 
     voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
+    if (check_ptr(voos_encontrados, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
+        return NULL;
     *n = n_econtrados;
 
     return voos_encontrados;
 }
 
-no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
-    
-    if(!g || !origem || !destino || !n) return NULL; // !partida ? 
-    heap * 
+void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
+    origem->dataatualizada = localtime(0);
+    origem->anterior = NULL;
 
-        for(int vertice = 0 ;  vertice < g->tamanho ;vertice++) {
-            
+    heap *fila_prioridade = heap_nova(g->tamanho);
+    for (int i = 0; i < g->tamanho; i++) {
+        if (g->nos[i] != origem) {
+            g->nos[i]->dataatualizada = localtime(__LONG_MAX__);
+            g->nos[i]->anterior = NULL;
         }
-    return NULL;
+        heap_insere(fila_prioridade, g->nos[i], (double)mktime(g->nos[i]->dataatualizada));
+    }
+
+    no_grafo *no_atual = NULL;
+    aresta_grafo *aresta_atual = NULL;
+
+    while (fila_prioridade->tamanho) {
+        no_atual = heap_remove(fila_prioridade);
+
+        for (int aresta = 0; aresta < no_atual->tamanho; aresta++) {
+            aresta_atual = no_atual->arestas[aresta];
+
+            if (difftime(mktime(&aresta_atual->partida), mktime(&partida)) > 0 &&
+                mktime(aresta_atual->destino->dataatualizada) > mktime(&aresta_atual->chegada)) {
+                aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
+                aresta_atual->destino->anterior = no_atual;
+
+                //? heap_atualiza_prioridade(fila_prioridade, aresta_atual->destino);
+                //! ????????????????????????????????????????????????????????????????
+            }
+        }
+        if (no_atual = destino)
+            break;
+    }
 }
 
-// function dijkstra(G, s):
-// G grafo, s inicio/nó
+// mktime() -- data -- time_t ->long (s)
+// localtime() -- time_t -- data*
+//difftime() -- s
 
- // Input: A graph G with vertices V, and a start vertex s
- // Output: Nothing
-//Purpose: Decorate nodes with shortest distance from s
-//  for v in V:
-//  v.dist = infinity // Initialize distance decorations
-//  v.prev = null // Initialize previous pointers to null
-//  s.dist = 0 // Set distance to start to 0
-//  PQ = PriorityQueue(V) // Use v.dist as priorities
-//  while PQ not empty:
-//  u = PQ.removeMin()
-//  for all edges (u, v):
-//  if v.dist > u.dist + cost(u, v): // cost() is weight
-//  v.dist = u.dist + cost(u,v) // Replace as necessary
-//  v.prev = u // Maintain pointers for path
-//  PQ.replaceKey(v, v.dist)
-
-
-// dos slides
-/* DIJKSTRA COMPLEXIDADE – HEAP
+/*
+DIJKSTRA COMPLEXIDADE – HEAP
 BINÁRIO
 PROGRAMAÇÃO 2 | MIEEC | 2020/21
-function dijkstra(G, s): */
- // Input: A graph G with vertices V, and a start vertex s
- // Output: Nothing
- // Purpose: Decorate nodes with shortest distance from s
-/*  for v in V: // O(V)
+function dijkstra(G, s):
+  Input: A graph G with vertices V, and a start vertex s
+  Output: Nothing
+  Purpose: Decorate nodes with shortest distance from s
+ for v in V: // O(V)
  v.dist = infinity
  v.prev = null
  s.dist = 0
  PQ = PriorityQueue(V)
  while PQ not empty: // O(V)
  u = PQ.removeMin() // O(log(V))
- for all edges (u, v): // O(E)
+ for all edges (u, v): // O(E)   
  if v.dist > u.dist + cost(u, v):
  v.dist = u.dist + cost(u,v)
  v.prev = u
  PQ.replaceKey(v, v.dist) // O(log(V))
- */
+*/
+
+no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
+    static no_grafo *origem_last = NULL;
+
+    if (!g || !origem || !destino || !n) return NULL;  //? partida ?
+
+    no_grafo *no_origem = encontra_no(g, origem);
+    no_grafo *no_destino = encontra_no(g, destino);
+
+    if (strcmp(origem_last->cidade, origem)) {
+        dijkstra(g, no_origem, no_destino, partida);
+        origem_last = no_origem;
+    }
+
+    if (!no_destino->anterior)
+        dijkstra(g, no_origem, no_destino, partida);
+
+    int caminho_size = 1;
+    no_grafo *no_atual = no_destino;
+    while (no_atual != no_origem) {
+        no_atual = no_atual->anterior;
+        caminho_size++;
+        if (!no_atual)
+            break;
+    }
+
+    no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
+
+    caminho[caminho_size - 1] = no_destino;
+    for (int i = caminho_size - 2; i >= 0; i--)
+        caminho[i] = no_destino->anterior;
+
+    return caminho;
+}
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
     return NULL;
