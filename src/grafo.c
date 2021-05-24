@@ -266,7 +266,7 @@ no_grafo *no_remove(grafo *g, char *cidade) {
     g->tamanho--;
     no_grafo *no_para_remover = g->nos[g->tamanho];
     g->nos[g->tamanho] = NULL;
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0])); //!analisar
 
     if (g->tamanho)
         if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
@@ -361,8 +361,34 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 }
 
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
+    
+    if(!g || !origem || !destino || !n) return NULL; // !partida ? 
+    
+
+        for(int vertices = 0 ;  vertices < g->tamanho ;vertices++) {
+            
+        }
     return NULL;
 }
+
+// function dijkstra(G, s):
+// G grafo, s inicio/nó
+
+ // Input: A graph G with vertices V, and a start vertex s
+ // Output: Nothing
+//Purpose: Decorate nodes with shortest distance from s
+//  for v in V:
+//  v.dist = infinity // Initialize distance decorations
+//  v.prev = null // Initialize previous pointers to null
+//  s.dist = 0 // Set distance to start to 0
+//  PQ = PriorityQueue(V) // Use v.dist as priorities
+//  while PQ not empty:
+//  u = PQ.removeMin()
+//  for all edges (u, v):
+//  if v.dist > u.dist + cost(u, v): // cost() is weight
+//  v.dist = u.dist + cost(u,v) // Replace as necessary
+//  v.prev = u // Maintain pointers for path
+//  PQ.replaceKey(v, v.dist)
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
     return NULL;
