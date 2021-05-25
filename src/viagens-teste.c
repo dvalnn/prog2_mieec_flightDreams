@@ -485,16 +485,16 @@ int main() {
         printf("OK: verifica_no_apaga passou\n\n");
     }
 
-    // printf("\nTESTES DA TABELA DE DISPERSAO\n\n");
-    // tabela_dispersao *td0, *td;
+    printf("\nTESTES DA TABELA DE DISPERSAO\n\n");
+    tabela_dispersao *td0, *td;
 
-    // error = verifica_tabela_nova(&td0);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_nova\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_nova passou\n\n");
-    // }
+    error = verifica_tabela_nova(&td0);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_nova\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_nova passou\n\n");
+    }
 
     // error = verifica_tabela_adiciona(td0, g);
     // if (error) {

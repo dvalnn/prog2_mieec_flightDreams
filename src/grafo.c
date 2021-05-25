@@ -21,7 +21,7 @@
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
 
-int check_ptr(void *ptr, const char *msg, const char *origem) {
+static int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
         printf("%s", msg);
         printf("[INFO] - Erro originado por: \"%s\"\n", origem);
@@ -477,6 +477,8 @@ no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data parti
 }
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
+
+
     return NULL;
 }
 
