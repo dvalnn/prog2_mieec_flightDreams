@@ -266,7 +266,7 @@ no_grafo *no_remove(grafo *g, char *cidade) {
     if (pos_para_remover != (g->tamanho - 1))
         no_grafo_swap(&g->nos[pos_para_remover], &g->nos[g->tamanho - 1]);
 
-    no_grafo *no_para_remover = g->nos[pos_para_remover];
+    no_grafo *no_para_remover = g->nos[g->tamanho - 1];
 
     for (int node = 0; node < g->tamanho; node++)
         for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++)
@@ -275,18 +275,13 @@ no_grafo *no_remove(grafo *g, char *cidade) {
                 aresta--;
             }
 
-    if (g->tamanho - 1) {
-        g->tamanho--;
-        g->nos[g->tamanho] = NULL;
-        no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
-        if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
-            g->nos = novo_vetor_nos;
+    g->tamanho--;
+    g->nos[g->tamanho] = NULL;
 
-    } else {
-        g->tamanho = 0;
-        free(g->nos);
-        g->nos = NULL;
-    }
+    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
+    if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
+        g->nos = novo_vetor_nos;
+
     return no_para_remover;
 }
 
@@ -318,10 +313,11 @@ int no_apaga(no_grafo *no) {
 void grafo_apaga(grafo *g) {
     if (!g)
         return;
-
-    for (int i = 0; i < g->tamanho; i++)
-        no_apaga(g->nos[i]);
-
+    if (g->nos) {
+        for (int i = 0; i < g->tamanho; i++)
+            no_apaga(g->nos[i]);
+        free(g->nos);
+    }
     free(g);
 }
 
@@ -434,37 +430,38 @@ function dijkstra(G, s):
 */
 
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
-    static no_grafo *origem_last = NULL;
+    // static no_grafo *origem_last = NULL;
 
-    if (!g || !origem || !destino || !n) return NULL;  //? partida ?
+    // if (!g || !origem || !destino || !n) return NULL;  //? partida ?
 
-    no_grafo *no_origem = encontra_no(g, origem);
-    no_grafo *no_destino = encontra_no(g, destino);
+    // no_grafo *no_origem = encontra_no(g, origem);
+    // no_grafo *no_destino = encontra_no(g, destino);
 
-    if (strcmp(origem_last->cidade, origem)) {
-        dijkstra(g, no_origem, no_destino, partida);
-        origem_last = no_origem;
-    }
+    // if (strcmp(origem_last->cidade, origem)) {
+    //     dijkstra(g, no_origem, no_destino, partida);
+    //     origem_last = no_origem;
+    // }
 
-    if (!no_destino->anterior)
-        dijkstra(g, no_origem, no_destino, partida);
+    // if (!no_destino->anterior)
+    //     dijkstra(g, no_origem, no_destino, partida);
 
-    int caminho_size = 1;
-    no_grafo *no_atual = no_destino;
-    while (no_atual != no_origem) {
-        no_atual = no_atual->anterior;
-        caminho_size++;
-        if (!no_atual)
-            break;
-    }
+    // int caminho_size = 1;
+    // no_grafo *no_atual = no_destino;
+    // while (no_atual != no_origem) {
+    //     no_atual = no_atual->anterior;
+    //     caminho_size++;
+    //     if (!no_atual)
+    //         break;
+    // }
 
-    no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
+    // no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
 
-    caminho[caminho_size - 1] = no_destino;
-    for (int i = caminho_size - 2; i >= 0; i--)
-        caminho[i] = no_destino->anterior;
+    // caminho[caminho_size - 1] = no_destino;
+    // for (int i = caminho_size - 2; i >= 0; i--)
+    //     caminho[i] = no_destino->anterior;
 
-    return caminho;
+    // return caminho;
+    return NULL;
 }
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
