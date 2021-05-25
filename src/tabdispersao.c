@@ -35,15 +35,17 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
     if (check_ptr(tabela_criada, MALLOC_ERROR_MSG, "tabdispersao.c - tabela_nova() - tabela_criada"))
         return NULL;
 
-    tabela_criada->nos = (no_grafo **)calloc(capacidade, sizeof(no_grafo));
-        if(check_ptr(tabela_criada->nos, MALLOC_ERROR_MSG,  "tabdispersao.c - tabela_nova() - tabela_criada-> nos")){
-            free(tabela_criada);
-            return NULL;
-        }
-    
     tabela_criada->capacidade = capacidade;
     tabela_criada->hfunc = hfunc;
     tabela_criada->sfunc = sfunc;
+
+    tabela_criada->estado_celulas = (int *)calloc(capacidade, sizeof(int));
+
+    tabela_criada->nos = (no_grafo **)calloc(capacidade, sizeof(no_grafo **));
+    if (check_ptr(tabela_criada->nos, MALLOC_ERROR_MSG, "tabdispersao.c - tabela_nova() - tabela_criada-> nos")) {
+        free(tabela_criada);
+        return NULL;
+    }
 
     return tabela_criada;
 }
@@ -53,7 +55,7 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 
     int indice = td->
     return -1; */
-    return NULL;
+    return 0;
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
