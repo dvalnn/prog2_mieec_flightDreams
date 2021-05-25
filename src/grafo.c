@@ -374,11 +374,11 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
     origem->dataatualizada = localtime(0);
     origem->anterior = NULL;
-
+    time_t infinity = __LONG_MAX__;
     heap *fila_prioridade = heap_nova(g->tamanho);
     for (int i = 0; i < g->tamanho; i++) {
         if (g->nos[i] != origem) {
-            g->nos[i]->dataatualizada = localtime(__LONG_MAX__);
+            g->nos[i]->dataatualizada = localtime(&infinity);
             g->nos[i]->anterior = NULL;
         }
         heap_insere(fila_prioridade, g->nos[i], (double)mktime(g->nos[i]->dataatualizada));
@@ -402,7 +402,7 @@ void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
                 //! ????????????????????????????????????????????????????????????????
             }
         }
-        if (no_atual = destino)
+        if (no_atual == destino)
             break;
     }
 }
