@@ -266,14 +266,6 @@ no_grafo *no_remove(grafo *g, char *cidade) {
     if (pos_para_remover != (g->tamanho - 1))
         no_grafo_swap(&g->nos[pos_para_remover], &g->nos[g->tamanho - 1]);
 
-    g->tamanho--;
-    no_grafo *no_para_remover = g->nos[g->tamanho];
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));  //!analisar
-    g->nos[g->tamanho] = NULL;
-
-    if (g->tamanho)
-        if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
-            g->nos = novo_vetor_nos;
     no_grafo *no_para_remover = g->nos[pos_para_remover];
 
     for (int node = 0; node < g->tamanho; node++)
@@ -283,19 +275,18 @@ no_grafo *no_remove(grafo *g, char *cidade) {
                 aresta--;
             }
 
-    if (pos_para_remover != (g->tamanho - 1))
-        for (int pos = pos_para_remover; pos < g->tamanho - 1; pos++)
-            g->nos[pos] = g->nos[pos + 1];
-
-    no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, (g->tamanho - 1) * sizeof(g->nos[0]));
-    g->tamanho--;
-
-    if (g->tamanho) {
-        if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc")) {
+    if (g->tamanho - 1) {
+        g->tamanho--;
+        g->nos[g->tamanho] = NULL;
+        no_grafo **novo_vetor_nos = (no_grafo **)realloc(g->nos, g->tamanho * sizeof(g->nos[0]));
+        if (!check_ptr(novo_vetor_nos, REALLOC_ERROR_MSG, "grafo.c - no_remove() - g->nos realloc"))
             g->nos = novo_vetor_nos;
-        }
-    }
 
+    } else {
+        g->tamanho = 0;
+        free(g->nos);
+        g->nos = NULL;
+    }
     return no_para_remover;
 }
 
