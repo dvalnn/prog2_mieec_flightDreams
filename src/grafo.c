@@ -335,12 +335,8 @@ no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
     return NULL;
 }
 
-char compare_time(data a, data b) {
-    if (a.tm_year == b.tm_year &&
-        a.tm_mon == b.tm_mon &&
-        a.tm_mday == b.tm_mday)
-        return TRUE;
-    return FALSE;
+int compare_time(data a, data b) {
+    return (a.tm_year - b.tm_year) * 100 + (a.tm_mon - b.tm_mon) * 10 + (a.tm_mday - b.tm_mday);
 }
 
 no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco_max, int *n) {
@@ -360,11 +356,11 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
             aresta_atual = g->nos[node]->arestas[aresta];
 
             if (!strcmp(aresta_atual->destino->cidade, destino) &&
-                compare_time(aresta_atual->chegada, chegada) &&
+                !compare_time(aresta_atual->chegada, chegada) &&
                 aresta_atual->preco <= preco_max) {
-                    
                 if (n_econtrados == encontrados_size) {
-                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));  //! check_ptr também?
+                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));  
+                    //TODO: check_ptr também?
                     encontrados_size *= 2;
                 }
 
@@ -372,7 +368,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
                 n_econtrados++;
             }
         }
-
+    //? existência de duplicados???
     voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
     if (n_econtrados)
         if (check_ptr(voos_encontrados, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
