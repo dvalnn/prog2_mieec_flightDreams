@@ -17,8 +17,9 @@
 #define INFINITY __INT_MAX__
 
 // * mensagens de erro
-#define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao realocar memória.\n"
-#define CALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória.\n"
+#define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
+#define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
+#define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
 
 int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
@@ -346,7 +347,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     int encontrados_size = 50;
     int n_econtrados = 0;
     no_grafo **voos_encontrados = calloc(encontrados_size, sizeof(*voos_encontrados));
-    if (check_ptr(voos_encontrados, CALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
+    if (check_ptr(voos_encontrados, MALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
         return NULL;
 
     aresta_grafo *aresta_atual = NULL;
@@ -359,7 +360,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
                 !compare_time(aresta_atual->chegada, chegada) &&
                 aresta_atual->preco <= preco_max) {
                 if (n_econtrados == encontrados_size) {
-                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));  
+                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));
                     //TODO: check_ptr também?
                     encontrados_size *= 2;
                 }
@@ -480,7 +481,50 @@ no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida
 }
 
 aresta_grafo **atualiza_lugares(char *ficheiro, grafo *g, int *n) {
-    return NULL;
+    if (!g || !ficheiro || !n) return NULL;
+
+    FILE *f_in = fopen(ficheiro, "r");
+    if (check_ptr(f_in, FILE_ERROR_MSG, "grafo.c - atualiza_lugares() - fopen"))
+        return NULL;
+
+    char codigo[15] = {0};
+    int lugares, aresta_pos;
+
+    int vec_size = 10, n_removidas = 0;
+    aresta_grafo **arestas_removidas = (aresta_grafo **)calloc(vec_size, sizeof(*arestas_removidas));
+    if (check_ptr(arestas_removidas, MALLOC_ERROR_MSG, "grafo.c - atualiza_lugares() - arestas_removidas"))
+        return NULL;
+
+    no_grafo *no_atual = NULL;
+    while (fscanf(f_in, "%15[^,]%*c %d ", codigo, &lugares) == 2) {
+        no_atual = encontra_voo(g, codigo, &aresta_pos);
+        if (!no_atual)
+            continue;
+
+        if (lugares) {
+            no_atual->arestas[aresta_pos]->lugares = lugares;
+            continue;
+        }
+
+        if (n_removidas >= vec_size) {
+            vec_size *= 2;
+            arestas_removidas = (aresta_grafo **)realloc(arestas_removidas, vec_size * sizeof(*arestas_removidas));
+        }
+
+        arestas_removidas[n_removidas] = no_atual->arestas[aresta_pos];
+        n_removidas++;
+
+        no_atual->arestas[aresta_pos] = NULL;
+        for (int i = aresta_pos; i < no_atual->tamanho - 1; i++)
+            aresta_grafo_swap(&no_atual->arestas[i], &no_atual->arestas[i + 1]);
+
+        no_atual->tamanho--;
+        no_atual->arestas = (aresta_grafo **)realloc(no_atual->arestas, no_atual->tamanho * sizeof(*no_atual->arestas));
+    }
+
+    fclose(f_in);
+    *n = n_removidas;
+    return arestas_removidas;
 }
 
 grafo *grafo_importa(const char *nome_ficheiro) {
