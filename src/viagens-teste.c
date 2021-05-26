@@ -496,42 +496,42 @@ int main() {
         printf("OK: verifica_tabela_nova passou\n\n");
     }
 
-    // error = verifica_tabela_adiciona(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_adiciona\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_adiciona passou\n\n");
-    // }
+    error = verifica_tabela_adiciona(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_adiciona\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_adiciona passou\n\n");
+    }
 
-    // error = verifica_tabela_remove(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_remove\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_remove passou\n\n");
-    // }
+    error = verifica_tabela_remove(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_remove\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_remove passou\n\n");
+    }
 
-    // error = verifica_tabela_existe(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_existe\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_existe passou\n\n");
-    // }
+    error = verifica_tabela_existe(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_existe\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_existe passou\n\n");
+    }
 
-    // error = verifica_tabela_carrega(&td, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_carrega\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_carrega passou\n\n");
-    // }
+    error = verifica_tabela_carrega(&td, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_carrega\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_carrega passou\n\n");
+    }
 
-    // if (td)
-    //     tabela_apaga(td);
-    // if (td0)
-    //     tabela_apaga(td0);
+    if (td)
+        tabela_apaga(td);
+    if (td0)
+        tabela_apaga(td0);
 
     grafo_apaga(g);
 
