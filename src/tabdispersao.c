@@ -39,6 +39,7 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
     if (check_ptr(tabela_criada, MALLOC_ERROR_MSG, "tabdispersao.c - tabela_nova() - tabela_criada"))
         return NULL;
 
+    tabela_criada->tamanho = 0;
     tabela_criada->capacidade = capacidade;
     tabela_criada->hfunc = hfunc;
     tabela_criada->sfunc = sfunc;
