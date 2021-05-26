@@ -62,7 +62,7 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 
     int tentativas = 0;
     while (TRUE) {
-        if (td->estado_celulas[index] = VAZIO) {
+        if (td->estado_celulas[index] == VAZIO) {
             td->nos[index] = entrada;
             td->estado_celulas[index] = VALIDO;
             td->tamanho++;
