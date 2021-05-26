@@ -63,6 +63,13 @@ int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
 }
 
 void tabela_apaga(tabela_dispersao *td) {
+    if (!td)
+        return;
+
+    free(td->nos);
+    free(td->estado_celulas);
+    free(td);
+    td = NULL;
 }
 
 int tabela_existe(tabela_dispersao *td, const char *cidade) {
