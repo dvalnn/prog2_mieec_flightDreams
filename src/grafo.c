@@ -640,3 +640,12 @@ grafo *grafo_importa(const char *nome_ficheiro) {
     fclose(f);
     return g;
 }
+
+#undef TRUE
+#undef FALSE
+
+#undef INFINITY
+
+#undef REALLOC_ERROR_MSG
+#undef MALLOC_ERROR_MSG 
+#undef FILE_ERROR_MSG 
