@@ -58,9 +58,9 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
     if (!td || !entrada || td->tamanho >= td->capacidade) return -1;
 
     unsigned long hash_index = td->hfunc(entrada->cidade, td->capacidade);
+    unsigned long index = hash_index;
 
     int tentativas = 0;
-    int index = hash_index;
     while (TRUE) {
         if (td->estado_celulas[index] = VAZIO) {
             td->nos[index] = entrada;
