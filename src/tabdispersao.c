@@ -27,6 +27,10 @@ static int check_ptr(void *ptr, const char *msg, const char *origem) {
     return FALSE;
 }
 
+enum ESTADO_CELULA { REMOVIDO = -1,
+                     VAZIO,
+                     VALIDO };
+
 tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc) {
     if (!capacidade || !hfunc || !sfunc)
         return NULL;
@@ -51,10 +55,23 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
 }
 
 int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
-    /* if(!td || !entrada) return -1;
+    if (!td || !entrada || td->tamanho >= td->capacidade) return -1;
 
-    int indice = td->
-    return -1; */
+    unsigned long hash_index = td->hfunc(entrada->cidade, td->capacidade);
+
+    int tentativas = 0;
+    int index = hash_index;
+    while (TRUE) {
+        if (td->estado_celulas[hash_index] = VAZIO) {
+            td->nos[hash_index] = entrada;
+            td->estado_celulas[hash_index] = VALIDO;
+            td->tamanho++;
+            break;
+        }
+
+        tentativas++;
+        index = td->sfunc(hash_index, tentativas, td->capacidade);
+    }
     return 0;
 }
 
