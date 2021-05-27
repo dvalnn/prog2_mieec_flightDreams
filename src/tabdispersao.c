@@ -77,6 +77,8 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
+
+    if(!td || !saida) return
     return -1;
 }
 
@@ -130,3 +132,10 @@ unsigned long hash_krm(const char *chave, int tamanho) {
 
     return 0;
 }
+
+#undef TRUE
+#undef FALSE
+
+#undef REALLOC_ERROR_MSG
+#undef MALLOC_ERROR_MSG
+#undef FILE_ERROR_MSG
