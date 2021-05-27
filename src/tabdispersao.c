@@ -100,8 +100,18 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
+    if (!td || !saida) return -1;
 
-    return -1;
+    int index = td->hfunc(saida->cidade, td->capacidade);
+
+    while (TRUE) {
+        if (td->estado_celulas[index] == VALIDO && !strcmp(td->nos[index]->cidade, saida->cidade)) {
+            td->estado_celulas[index] == REMOVIDO;
+            td->nos[index] = NULL;
+        }
+        
+    }
+    return 0;
 }
 
 void tabela_apaga(tabela_dispersao *td) {
@@ -136,14 +146,14 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
 tabela_dispersao *tabela_carrega(grafo *g, int capacidade) {
     if (!g || !capacidade) return NULL;
 
-        tabela_dispersao *td_a_preencher = tabela_nova(capacidade, hash_krm, sond_rh);
+    tabela_dispersao *td_a_preencher = tabela_nova(capacidade, hash_krm, sond_rh);
     if (check_ptr(td_a_preencher, TD_CREATION_ERROR_MSG, "tabdispersao.c - tabela_carrega() - td_a_preencher"))
         return NULL;
     for (int i = 0; g->tamanho > i; i++)
         if (tabela_adiciona(td_a_preencher, g->nos[i]) == -1)
             return NULL;
 
-    return td_a_preencher; 
+    return td_a_preencher;
 }
 
 /*================================================================================*/
