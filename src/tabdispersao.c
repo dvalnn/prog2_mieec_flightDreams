@@ -17,6 +17,7 @@
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
+#define TD_CREATION_ERROR_MSG "\n[ERRO] - Falha ao criar a tabela de dispersão\n"
 
 static int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
@@ -60,7 +61,7 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 
     unsigned long hash_index = td->hfunc(entrada->cidade, td->capacidade);
     unsigned long index = hash_index;
-
+    
     int tentativas = 0;
     while (TRUE) {
         if (td->estado_celulas[index] == VAZIO) {
@@ -77,8 +78,9 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
+    if (!td || !saida) return -1;
 
-    if(!td || !saida) return
+    // ao remover, meter estado a -1
     return -1;
 }
 
@@ -102,16 +104,16 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
     while (TRUE) {
         if (td->estado_celulas[index] == VALIDO && !strcmp(td->nos[index]->cidade, cidade))
             return index;
-
+        else if (td->estado_celulas[index] == VAZIO)
+            return -1;
+        
         tentativas++;
         index = td->sfunc(hash_index, tentativas, td->capacidade);
-        if (index == hash_index)
-            return -1;
     }
     return -1;
 }
 
-tabela_dispersao *tabela_carrega(grafo *g, int tamanho) {
+tabela_dispersao *tabela_carrega(grafo *g, int capacidade) {
     return NULL;
 }
 
@@ -139,3 +141,4 @@ unsigned long hash_krm(const char *chave, int tamanho) {
 #undef REALLOC_ERROR_MSG
 #undef MALLOC_ERROR_MSG
 #undef FILE_ERROR_MSG
+#undef CREATION_ERROR_MSG
