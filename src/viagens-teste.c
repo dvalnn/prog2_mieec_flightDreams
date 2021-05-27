@@ -104,6 +104,10 @@ int verifica_pesquisa_avancada(grafo *g) {
     chegada.tm_year = 2021;
     chegada.tm_mon = 5;
     chegada.tm_mday = 8;
+    chegada.tm_hour = 0;
+    chegada.tm_min = 0;
+    chegada.tm_sec = 0;
+    chegada.tm_isdst = 0;
     int n = 0;
     vno = pesquisa_avancada(g, "Dallas/Fort Worth/TX", chegada, 1400, &n);
 
@@ -131,6 +135,10 @@ int verifica_trajeto_mais_rapido(grafo *g) {
     partida.tm_year = 2021;
     partida.tm_mon = 5;
     partida.tm_mday = 1;
+    partida.tm_hour = 0;
+    partida.tm_min = 0;
+    partida.tm_sec = 0;
+    partida.tm_isdst = 0;
     no_grafo **teste = trajeto_mais_rapido(g, or, de, partida, &n);
 
     if (!teste) {
@@ -158,6 +166,10 @@ int verifica_menos_transbordos(grafo *g) {
     partida.tm_year = 2021;
     partida.tm_mon = 5;
     partida.tm_mday = 1;
+    partida.tm_hour = 0;
+    partida.tm_min = 0;
+    partida.tm_sec = 0;
+    partida.tm_isdst = 0;
     no_grafo **teste = menos_transbordos(g, or, de, partida, &n);
 
     if (!teste) {
