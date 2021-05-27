@@ -4,6 +4,7 @@
         "stnova.h": "c",
         "tabdispersao.h": "c",
         "time.h": "c",
-        "ctime": "c"
+        "ctime": "c",
+        "grafo.h": "c"
     }
 }
