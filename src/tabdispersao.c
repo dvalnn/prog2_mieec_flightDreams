@@ -56,25 +56,47 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
     return tabela_criada;
 }
 
+int tabela_insere(tabela_dispersao *td, no_grafo *entrada, int index) {
+    td->estado_celulas[index] = VALIDO;
+    td->nos[index] = entrada;
+    td->tamanho++;
+    return index;
+}
+
 int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
     if (!td || !entrada || td->tamanho >= td->capacidade) return -1;
 
-    unsigned long hash_index = td->hfunc(entrada->cidade, td->capacidade);
-    unsigned long index = hash_index;
-    
-    int tentativas = 0;
-    while (TRUE) {
-        if (td->estado_celulas[index] == VAZIO) {
-            td->nos[index] = entrada;
-            td->estado_celulas[index] = VALIDO;
-            td->tamanho++;
-            break;
-        }
+    int hash_index = (int)td->hfunc(entrada->cidade, td->capacidade);
+    if (td->estado_celulas[hash_index] == VAZIO)
+        return tabela_insere(td, entrada, hash_index);
 
+    int index_sond = hash_index;
+    int removido_index = -1;
+    int tentativas = 0;
+
+    while (TRUE) {
         tentativas++;
-        index = td->sfunc(hash_index, tentativas, td->capacidade);
+        index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
+
+        if ((td->estado_celulas[index_sond] == VALIDO) && !strcmp(td->nos[index_sond]->cidade, entrada->cidade))
+            return index_sond;  //? questionar
+
+        if (td->estado_celulas[index_sond] == REMOVIDO && removido_index == -1)
+            removido_index = index_sond;
+
+        else if (td->estado_celulas[index_sond] == VAZIO) {
+            if (removido_index != -1)
+                return tabela_insere(td, entrada, removido_index);
+            return tabela_insere(td, entrada, index_sond);
+        }
+        if (index_sond == hash_index) {
+            if (removido_index != -1)
+                return tabela_insere(td, entrada, removido_index);
+            return -1;
+        }
     }
-    return index;
+
+    return -1;
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
@@ -106,7 +128,7 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
             return index;
         else if (td->estado_celulas[index] == VAZIO)
             return -1;
-        
+
         tentativas++;
         index = td->sfunc(hash_index, tentativas, td->capacidade);
     }
@@ -114,6 +136,7 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
 }
 
 tabela_dispersao *tabela_carrega(grafo *g, int capacidade) {
+    if (!g || !capacidade) return NULL;
     return NULL;
 }
 
