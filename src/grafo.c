@@ -340,6 +340,21 @@ int compare_time(data a, data b) {
     return (a.tm_year - b.tm_year) * 100 + (a.tm_mon - b.tm_mon) * 10 + (a.tm_mday - b.tm_mday);
 }
 
+void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node) {
+    for (int i = 0; i < (*n_voos); i++)
+        if (nos_com_voo[i] == node)
+            return;
+
+    if (n_voos == capacidade) {
+        nos_com_voo = realloc(nos_com_voo, ((*capacidade) * 2) * sizeof(*n_voos));
+        //TODO: check_ptr também?
+        (*capacidade) *= 2;
+    }
+
+    nos_com_voo[*n_voos] = node;
+    (*n_voos)++;
+}
+
 no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco_max, int *n) {
     if (!g || !destino || preco_max <= 0 || !n) return NULL;  //? chegada?
 
@@ -358,18 +373,11 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 
             if (!strcmp(aresta_atual->destino->cidade, destino) &&
                 !compare_time(aresta_atual->chegada, chegada) &&
-                aresta_atual->preco <= preco_max) {
-                if (n_econtrados == encontrados_size) {
-                    voos_encontrados = realloc(voos_encontrados, (encontrados_size * 2) * sizeof(*voos_encontrados));
-                    //TODO: check_ptr também?
-                    encontrados_size *= 2;
-                }
+                aresta_atual->preco <= preco_max)
 
-                voos_encontrados[n_econtrados] = g->nos[node];
-                n_econtrados++;
-            }
+                vetor_voos_insere(voos_encontrados, &encontrados_size, &n_econtrados, g->nos[node]);
         }
-    //? existência de duplicados???
+
     voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
     if (n_econtrados)
         if (check_ptr(voos_encontrados, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
@@ -477,8 +485,6 @@ no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data parti
 }
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
-
-
     return NULL;
 }
 
@@ -647,5 +653,5 @@ grafo *grafo_importa(const char *nome_ficheiro) {
 #undef INFINITY
 
 #undef REALLOC_ERROR_MSG
-#undef MALLOC_ERROR_MSG 
-#undef FILE_ERROR_MSG 
+#undef MALLOC_ERROR_MSG
+#undef FILE_ERROR_MSG
