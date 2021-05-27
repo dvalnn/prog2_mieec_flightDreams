@@ -78,10 +78,10 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
         tentativas++;
         index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
 
-        if ((td->estado_celulas[index_sond] == VALIDO) && !strcmp(td->nos[index_sond]->cidade, entrada->cidade))
+        if ((td->estado_celulas[index_sond] == VALIDO) && td->nos[index_sond] == entrada)
             return index_sond;  //? questionar
 
-        if (td->estado_celulas[index_sond] == REMOVIDO && removido_index == -1)
+        if (removido_index == -1 && td->estado_celulas[index_sond] == REMOVIDO)
             removido_index = index_sond;
 
         else if (td->estado_celulas[index_sond] == VAZIO) {
@@ -102,14 +102,22 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
     if (!td || !saida) return -1;
 
-    int index = td->hfunc(saida->cidade, td->capacidade);
+    int hash_index = td->hfunc(saida->cidade, td->capacidade);
+    int index_sond = hash_index;
+    int tentativas = 0;
 
     while (TRUE) {
-        if (td->estado_celulas[index] == VALIDO && !strcmp(td->nos[index]->cidade, saida->cidade)) {
-            td->estado_celulas[index] == REMOVIDO;
-            td->nos[index] = NULL;
+        if (td->estado_celulas[index_sond] == VALIDO && td->nos[index_sond] == saida) {
+            td->estado_celulas[index_sond] = REMOVIDO;
+            td->nos[index_sond] = NULL;
+            td->tamanho--;
+            break;
         }
-        
+        if (td->estado_celulas[index_sond] == VAZIO)
+            return -1;
+
+        tentativas++;
+        index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
     }
     return 0;
 }
