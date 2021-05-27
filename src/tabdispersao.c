@@ -73,7 +73,7 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
         tentativas++;
         index = td->sfunc(hash_index, tentativas, td->capacidade);
     }
-    return 0;
+    return index;
 }
 
 int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
