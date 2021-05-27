@@ -91,6 +91,21 @@ void tabela_apaga(tabela_dispersao *td) {
 }
 
 int tabela_existe(tabela_dispersao *td, const char *cidade) {
+    if (!td || !cidade) return -1;
+
+    unsigned long hash_index = td->hfunc(cidade, td->capacidade);
+    unsigned long index = hash_index;
+
+    int tentativas = 0;
+    while (TRUE) {
+        if (td->estado_celulas[index] == VALIDO && !strcmp(td->nos[index]->cidade, cidade))
+            return index;
+
+        tentativas++;
+        index = td->sfunc(hash_index, tentativas, td->capacidade);
+        if (index == hash_index)
+            return -1;
+    }
     return -1;
 }
 
