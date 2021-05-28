@@ -17,18 +17,14 @@ enum MAP_STATUS { NAO_EXISTE = -3,
                   EXISTE };
 
 //* Lista Secundária
-typedef struct node_pair {
+typedef struct lista_ligacoes {
     no_grafo *no_origem;
     no_grafo *no_destino;
     int voo_mais_barato;
-} ligacao_direta;
-
-typedef struct node_pair_list {
-    ligacao_direta *ligacao;
-    struct node_pair_list *proxima;
+    struct lista_ligacoes *proxima;
 } lista_ligacoes;
 
-typedef struct node_pair_map {
+typedef struct mapa_destinos {
     hash_func *hfunc;
     lista_ligacoes **voos;
     int n_voos;
