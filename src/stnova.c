@@ -36,7 +36,16 @@ estrutura *st_nova() {
     return nova_tabela;
 }
 
-mapa_destinos *novo_mapa() {
+mapa_destinos *novo_mapa(int n_voos) {
+    mapa_destinos *novo = (mapa_destinos *)malloc(sizeof(*novo));
+    if (check_ptr(novo, MALLOC_ERROR_MSG, "stnova.c - st_nova() - nova_tabela"))
+        return NULL;
+
+    novo->hfunc = hash_djbm;
+    novo->n_voos = n_voos;
+    novo->voos = NULL;
+
+    return novo;
 }
 
 int elemento_insere(elemento *elem, no_grafo *node) {
@@ -46,6 +55,10 @@ int elemento_insere(elemento *elem, no_grafo *node) {
     elem->destinos = (objeto *)malloc(sizeof(*elem->destinos));
     if (check_ptr(elem->destinos, MALLOC_ERROR_MSG, "stnova.c - elemento_insere() - elem->destinos"))
         return -1;
+
+    elem->destinos->no_de_origem = node;
+    elem->destinos->todos_os_destinos = novo_mapa(node->tamanho);
+    return 1;
 }
 
 int st_insere(estrutura *st, no_grafo *node) {
@@ -92,10 +105,13 @@ char *st_pesquisa(estrutura *st, char *origem, char *destino) {
     return NULL;
 }
 
-int apaga_destinos(objeto *origem) {
+void mapa_apaga() {
 }
 
-void mapa_apaga() {
+void apaga_destinos(objeto *obj) {
+    if (!obj) return;
+
+    free(obj);
 }
 
 void apaga_origem(elemento *origem) {
@@ -420,8 +436,8 @@ unsigned long hash_djbm(const char *chave, int tamanho) {
 //     printf("\n");
 // }
 
-#undef TRUE 1
-#undef FALSE 0
+#undef TRUE
+#undef FALSE
 
 #undef REALLOC_ERROR_MSG
 #undef MALLOC_ERROR_MSG

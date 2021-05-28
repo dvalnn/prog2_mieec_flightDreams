@@ -10,10 +10,14 @@
 
 typedef unsigned long hash_func(const char *, int);
 
+struct node_pair;
+struct node_pair_list;
+struct node_pair_table;
+
+struct node_table_pair;
+struct node_table_pair_list;
 struct mapa_origens;
-struct mapa_destinos;
-struct elem;
-struct objetos;
+
 
 enum MAP_STATUS { NAO_EXISTE = -3,
                   ERRO,
@@ -30,7 +34,7 @@ typedef struct node_pair {
 
 typedef struct node_pair_list {
     ligacao_direta *ligacao;
-    lista_ligacoes *proxima;
+    struct node_pair_list *proxima;
 } lista_ligacoes;
 
 typedef struct node_pair_table {
@@ -47,7 +51,7 @@ typedef struct node_table_pair {
 
 typedef struct node_table_pair_list {
     objeto *destinos;
-    elemento *proximo;
+    struct node_table_pair_list *proximo;
 } elemento;
 
 typedef struct mapa_origens {
