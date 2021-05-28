@@ -10,15 +10,6 @@
 
 typedef unsigned long hash_func(const char *, int);
 
-struct node_pair;
-struct node_pair_list;
-struct node_pair_table;
-
-struct node_table_pair;
-struct node_table_pair_list;
-struct mapa_origens;
-
-
 enum MAP_STATUS { NAO_EXISTE = -3,
                   ERRO,
                   INVALIDA,
@@ -27,8 +18,8 @@ enum MAP_STATUS { NAO_EXISTE = -3,
 
 //* Lista Secundária
 typedef struct node_pair {
-    no_grafo *origem;
-    no_grafo *destino;
+    no_grafo *no_origem;
+    no_grafo *no_destino;
     int voo_mais_barato;
 } ligacao_direta;
 
@@ -37,21 +28,17 @@ typedef struct node_pair_list {
     struct node_pair_list *proxima;
 } lista_ligacoes;
 
-typedef struct node_pair_table {
+typedef struct node_pair_map {
     hash_func *hfunc;
     lista_ligacoes **voos;
     int n_voos;
 } mapa_destinos;
 
 //* Lista Principal
-typedef struct node_table_pair {
+typedef struct origem {
     no_grafo *no_de_origem;
     mapa_destinos *todos_os_destinos;
-} objeto;
-
-typedef struct node_table_pair_list {
-    objeto *destinos;
-    struct node_table_pair_list *proximo;
+    struct origem *proximo;
 } elemento;
 
 typedef struct mapa_origens {
