@@ -92,4 +92,6 @@ char *st_pesquisa(estrutura *st, char *origem, char *destino);
  */
 int st_apaga(estrutura *st);
 
+unsigned long hash_djbm(const char *chave, int tamanho);
+
 #endif
