@@ -70,3 +70,6 @@ uninstall: clean
 
 valgrind:
 	valgrind $(VALGRING_FLAGS) $(BIN)/$(EXECUTABLE_NAME).dbg
+
+run: 
+	$(BIN)/$(EXECUTABLE_NAME)

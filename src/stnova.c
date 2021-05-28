@@ -59,8 +59,6 @@ int mapa_insere(mapa_destinos *md, no_grafo *origem, int index_ligacao) {
     int index = md->hfunc(ligacao->destino->cidade, md->n_voos);
     ligacao_direta *voo = md->voos[index];
 
-    // printf(" - A inserir: %s, no index %d\n", ligacao->destino->cidade, index);
-    // printf("\t n_voos a partir da origem: %d, origem: %s\n", md->n_voos, origem->cidade);
     while (voo) {
         if (voo->no_destino == ligacao->destino) {
             if (origem->arestas[voo->index_mais_barato]->preco > ligacao->preco)
@@ -107,14 +105,14 @@ int st_insere(estrutura *st, no_grafo *node) {
     int index = (int)st->hfunc(node->cidade, st->n_origens);
     elemento *elem = st->elementos[index];
 
-    // testa a existência de colisões e se o nó a inserir é duplicado
+    //* testa a existência de colisões e se o nó a inserir é duplicado
     while (elem) {
         if (elem->no_de_origem == node)
             return 0;
         elem = elem->proximo;
     }
 
-    //no a inserir n existe
+    //* no a inserir n existe
     elem = novo_elemento(node);
     if (check_ptr(elem, MALLOC_ERROR_MSG, "stnova.c - st_insere() - pos_a_inserir"))
         return -1;
@@ -172,8 +170,7 @@ int st_apaga(estrutura *st) {
 int st_importa_grafo(estrutura *st, grafo *g) {
     if (!st || !g) return -1;
 
-    // st->n_origens = g->tamanho;
-    st->n_origens = 1;
+    st->n_origens = g->tamanho;
     st->elementos = (elemento **)calloc(st->n_origens, sizeof(*st->elementos));
     if (check_ptr(st->elementos, MALLOC_ERROR_MSG, "stnova.c - st_importa_grafo - st->origens"))
         return -1;
@@ -193,8 +190,9 @@ char *st_pesquisa(estrutura *st, char *origem, char *destino) {
     int index_origem = (int)st->hfunc(origem, st->n_origens);
     elemento *pos_atual = st->elementos[index_origem];
 
-    while (pos_atual && strcmp(pos_atual->no_de_origem->cidade, origem))
+    while (pos_atual && strcmp(pos_atual->no_de_origem->cidade, origem)) {
         pos_atual = pos_atual->proximo;
+    }
 
     if (!pos_atual || !pos_atual->todos_os_destinos->n_voos) return NULL;
 
