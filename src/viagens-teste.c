@@ -547,26 +547,26 @@ int main() {
 
     grafo_apaga(g);
 
-    // printf("\nTESTES DA ST NOVA\n\n");
+    printf("\nTESTES DA ST NOVA\n\n");
 
-    // char ficheiro1[] = "./resources/flightPlan.txt";
-    // grafo *g1 = grafo_importa(ficheiro1);
+    char ficheiro1[] = "./resources/flightPlan.txt";
+    grafo *g1 = grafo_importa(ficheiro1);
 
-    // error = verifica_st(g1);
+    error = verifica_st(g1);
 
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_st\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_st passou\n\n");
-    // }
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_st\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_st passou\n\n");
+    }
 
-    // grafo_apaga(g1);
+    grafo_apaga(g1);
 
-    // if (errorCount == 0)
-    //     printf("FIM DOS TESTES: Todos os testes passaram\n");
-    // else
-    //     printf("FIM DOS TESTES: Foram encontrados %d ERROS no total\n", errorCount);
+    if (errorCount == 0)
+        printf("FIM DOS TESTES: Todos os testes passaram\n");
+    else
+        printf("FIM DOS TESTES: Foram encontrados %d ERROS no total\n", errorCount);
 
     return 0;
 }

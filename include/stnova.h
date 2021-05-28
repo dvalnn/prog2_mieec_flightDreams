@@ -6,12 +6,33 @@
 #define _STNOVA_H_
 
 #include "grafo.h"
-#include "tabdispersao.h"
 
-/* podem criar mais struct que achem necessárias*/
+typedef unsigned long hash_func(const char *, int);
 
-typedef struct
-{
+//* Lista Secundária
+typedef struct ligacao_direta {
+    no_grafo *no_destino;
+    int index_mais_barato;
+    struct ligacao_direta *proximo;
+} ligacao_direta;
+
+typedef struct mapa_destinos {
+    hash_func *hfunc;
+    ligacao_direta **voos;
+    int n_voos;
+} mapa_destinos;
+
+//* Lista Principal
+typedef struct origem {
+    no_grafo *no_de_origem;
+    mapa_destinos *todos_os_destinos;
+    struct origem *proximo;
+} elemento;
+
+typedef struct mapa_origens {
+    hash_func *hfunc;
+    elemento **elementos;
+    int n_origens;
 } estrutura;
 
 /**
@@ -49,5 +70,7 @@ char *st_pesquisa(estrutura *st, char *origem, char *destino);
  * @return int 0 se bem-sucedido e -1 se ocorrer algum erro
  */
 int st_apaga(estrutura *st);
+
+unsigned long hash_djbm(const char *chave, int tamanho);
 
 #endif
