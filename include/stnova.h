@@ -6,12 +6,54 @@
 #define _STNOVA_H_
 
 #include "grafo.h"
-#include "tabdispersao.h"
+// #include "tabdispersao.h"
 
-/* podem criar mais struct que achem necessárias*/
+typedef unsigned long hash_func(const char *, int);
 
-typedef struct
-{
+struct mapa_origens;
+struct mapa_destinos;
+struct elem;
+struct objetos;
+
+enum MAP_STATUS { NAO_EXISTE = -3,
+                  ERRO,
+                  INVALIDA,
+                  OK,
+                  EXISTE };
+
+//* Lista Secundária
+typedef struct node_pair {
+    no_grafo *origem;
+    no_grafo *destino;
+    int voo_mais_barato;
+} ligacao_direta;
+
+typedef struct node_pair_list {
+    ligacao_direta *ligacao;
+    lista_ligacoes *proxima;
+} lista_ligacoes;
+
+typedef struct node_pair_table {
+    hash_func *hfunc;
+    lista_ligacoes **voos;
+    int n_voos;
+} mapa_destinos;
+
+//* Lista Principal
+typedef struct node_table_pair {
+    no_grafo *no_de_origem;
+    mapa_destinos *todos_os_destinos;
+} objeto;
+
+typedef struct node_table_pair_list {
+    objeto *destinos;
+    elemento *proximo;
+} elemento;
+
+typedef struct mapa_origens {
+    hash_func *hfunc;
+    elemento **origens;
+    int n_origens;
 } estrutura;
 
 /**
