@@ -17,7 +17,11 @@
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
-#define TD_CREATION_ERROR_MSG "\n[ERRO] - Falha ao criar a tabela de dispersão\n"
+#define TD_CREATION_ERROR_MSG "\n[ERRO] - Falha ao criar a tabela de dispersão de endereçamento aberto\n"
+
+enum ESTADO_CELULA { REMOVIDO = -1,
+                     VAZIO,
+                     VALIDO };
 
 static int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
@@ -27,10 +31,6 @@ static int check_ptr(void *ptr, const char *msg, const char *origem) {
     }
     return FALSE;
 }
-
-enum ESTADO_CELULA { REMOVIDO = -1,
-                     VAZIO,
-                     VALIDO };
 
 tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc) {
     if (!capacidade || !hfunc || !sfunc)
