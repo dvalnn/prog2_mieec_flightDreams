@@ -43,7 +43,7 @@ typedef struct origem {
 
 typedef struct mapa_origens {
     hash_func *hfunc;
-    elemento **origens;
+    elemento **elementos;
     int n_origens;
 } estrutura;
 

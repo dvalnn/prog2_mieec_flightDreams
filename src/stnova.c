@@ -31,7 +31,7 @@ estrutura *st_nova() {
 
     nova_tabela->hfunc = hash_djbm;
     nova_tabela->n_origens = 0;
-    nova_tabela->origens = NULL;
+    nova_tabela->elementos = NULL;
 
     return nova_tabela;
 }
@@ -43,60 +43,105 @@ mapa_destinos *novo_mapa(int n_voos) {
 
     novo->hfunc = hash_djbm;
     novo->n_voos = n_voos;
-    novo->voos = NULL;
+    novo->voos = (lista_ligacoes **)calloc(novo->n_voos, sizeof(*novo->voos));
+    if (check_ptr(novo->voos, MALLOC_ERROR_MSG, "stnova.c - novo_mapa() - novo->voos")) {
+        free(novo);
+        return NULL;
+    }
 
     return novo;
 }
 
-int elemento_insere(elemento *elem, no_grafo *node) {
-    if (!elem || !node) return -1;
+elemento *novo_elemento(no_grafo *node) {
+    if (!node) return NULL;
+
+    elemento *elem = (elemento *)malloc(sizeof(*elem));
+
     elem->proximo = NULL;
+    elem->no_de_origem = node;
+    elem->todos_os_destinos = novo_mapa(node->tamanho);
 
-    elem->destinos = (objeto *)malloc(sizeof(*elem->destinos));
-    if (check_ptr(elem->destinos, MALLOC_ERROR_MSG, "stnova.c - elemento_insere() - elem->destinos"))
-        return -1;
+    if (!elem->todos_os_destinos) {
+        free(elem);
+        return NULL;
+    }
 
-    elem->destinos->no_de_origem = node;
-    elem->destinos->todos_os_destinos = novo_mapa(node->tamanho);
-    return 1;
+    for (int i = 0; i < node->tamanho; i++) {
+        //mapa insere
+    }
+
+    return elem;
 }
 
 int st_insere(estrutura *st, no_grafo *node) {
     if (!st || !node) return -1;
     int index = (int)st->hfunc(node->cidade, st->n_origens);
-
-    elemento *pos_a_inserir = st->origens[index];
+    elemento *elem = st->elementos[index];
 
     // testa a existência de colisões e se o nó a inserir é duplicado
-    while (pos_a_inserir) {
-        if (pos_a_inserir->destinos->no_de_origem == node)
+    while (elem) {
+        if (elem->no_de_origem == node)
             return 0;
-        pos_a_inserir = pos_a_inserir->proximo;
+        elem = elem->proximo;
     }
 
     //no a inserir n existe
-    pos_a_inserir = (elemento *)malloc(sizeof(*pos_a_inserir));
-    if (check_ptr(pos_a_inserir, MALLOC_ERROR_MSG, "stnova.c - st_insere() - pos_a_inserir"))
+    elem = novo_elemento(node);
+    if (check_ptr(elem, MALLOC_ERROR_MSG, "stnova.c - st_insere() - pos_a_inserir"))
         return -1;
 
-    if (elemento_insere(pos_a_inserir, node) == -1) {
-        free(pos_a_inserir);
-        return -1;
-    }
+    //* insere no início da lista
+    elem->proximo = st->elementos[index];
+    st->elementos[index] = elem;
 
     return 0;
+}
+
+void mapa_apaga(mapa_destinos *md) {
+    if (!md) return;
+    free(md->voos);
+    free(md);
+}
+
+void apaga_elemento(elemento *elem) {
+    if (!elem) return;
+    elemento *origem_next = NULL;
+
+    while (elem) {
+        origem_next = elem->proximo;
+        mapa_apaga(elem->todos_os_destinos);
+        free(elem);
+        elem = origem_next;
+    }
+}
+
+int st_apaga(estrutura *st) {
+    if (!st) return -1;
+
+    for (int i = 0; i < st->n_origens; i++) {
+        apaga_elemento(st->elementos[i]);
+    }
+
+    free(st->elementos);
+    free(st);
+
+    return -1;
 }
 
 int st_importa_grafo(estrutura *st, grafo *g) {
     if (!st || !g) return -1;
 
-    st->n_origens = g->tamanho;
-    st->origens = (elemento **)calloc(st->n_origens, sizeof(*st->origens));
-    if (check_ptr(st->origens, MALLOC_ERROR_MSG, "stnova.c - st_importa_grafo - st->origens"))
+    // st->n_origens = g->tamanho;
+    st->n_origens = 1;
+    st->elementos = (elemento **)calloc(st->n_origens, sizeof(*st->elementos));
+    if (check_ptr(st->elementos, MALLOC_ERROR_MSG, "stnova.c - st_importa_grafo - st->origens"))
         return -1;
 
     for (int i = 0; i < g->tamanho; i++)
-        if (st_insere(st, g->nos[i]) == -1) return -1;
+        if (st_insere(st, g->nos[i]) == -1) {
+            free(st->elementos);
+            return -1;
+        }
 
     return 0;
 }
@@ -104,39 +149,6 @@ int st_importa_grafo(estrutura *st, grafo *g) {
 char *st_pesquisa(estrutura *st, char *origem, char *destino) {
     return NULL;
 }
-
-void mapa_apaga() {
-}
-
-void apaga_destinos(objeto *obj) {
-    if (!obj) return;
-
-    free(obj);
-}
-
-void apaga_origem(elemento *origem) {
-    if (!origem) return;
-    elemento *origem_next = NULL;
-
-    while (origem) {
-        origem_next = origem->proximo;
-        apaga_destinos(origem->destinos);
-        free(origem);
-        origem = origem_next;
-    }
-}
-
-int st_apaga(estrutura *st) {
-    if (!st) return -1;
-    for (int i = 0; i < st->n_origens; i++)
-        apaga_origem(st->origens[i]);
-
-    free(st->origens);
-    free(st);
-
-    return -1;
-}
-
 // tabela_dispersao* tabela_nova(int tamanho, hash_func *hfunc)
 // {
 //     /* aloca memoria para a estrutura tabela_dispersao */
