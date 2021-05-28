@@ -6,27 +6,19 @@
 #define _STNOVA_H_
 
 #include "grafo.h"
-// #include "tabdispersao.h"
 
 typedef unsigned long hash_func(const char *, int);
 
-enum MAP_STATUS { NAO_EXISTE = -3,
-                  ERRO,
-                  INVALIDA,
-                  OK,
-                  EXISTE };
-
 //* Lista Secundária
-typedef struct lista_ligacoes {
-    no_grafo *no_origem;
+typedef struct ligacao_direta {
     no_grafo *no_destino;
-    int voo_mais_barato;
-    struct lista_ligacoes *proxima;
-} lista_ligacoes;
+    int index_mais_barato;
+    struct ligacao_direta *proximo;
+} ligacao_direta;
 
 typedef struct mapa_destinos {
     hash_func *hfunc;
-    lista_ligacoes **voos;
+    ligacao_direta **voos;
     int n_voos;
 } mapa_destinos;
 
