@@ -190,9 +190,9 @@ char *st_pesquisa(estrutura *st, char *origem, char *destino) {
     int index_origem = (int)st->hfunc(origem, st->n_origens);
     elemento *pos_atual = st->elementos[index_origem];
 
-    while (pos_atual && strcmp(pos_atual->no_de_origem->cidade, origem)) {
+    while (pos_atual && strcmp(pos_atual->no_de_origem->cidade, origem))
         pos_atual = pos_atual->proximo;
-    }
+    
 
     if (!pos_atual || !pos_atual->todos_os_destinos->n_voos) return NULL;
 
