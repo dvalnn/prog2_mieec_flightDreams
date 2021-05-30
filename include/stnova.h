@@ -9,7 +9,7 @@
 
 typedef unsigned long hash_func(const char *, int);
 
-//* Lista Secundária
+//* Tabela Secundária
 typedef struct ligacao_direta {
     no_grafo *no_destino;
     int index_mais_barato;
@@ -22,7 +22,7 @@ typedef struct mapa_destinos {
     int n_voos;
 } mapa_destinos;
 
-//* Lista Principal
+//* Tabela Principal
 typedef struct origem {
     no_grafo *no_de_origem;
     mapa_destinos *todos_os_destinos;
@@ -36,8 +36,10 @@ typedef struct mapa_origens {
 } estrutura;
 
 /**
- * @brief cria e inicializa a estrutura criada
- * 
+ * @brief cria e inicializa um mapa baseado em tabelas de dispersão que para cada par de char *cidade (origem, destino)
+ *        associa o voo direto mais barato entre elas -- desempenha uma funcionalidade semelhante a um dicionário 
+ *        do tipo {(origem, destino) : codigo_melhor_voo} em Python.
+ *  
  * @return estrutura* se bem-sucedido ou NULL caso contrário
  */
 estrutura *st_nova();
@@ -52,9 +54,7 @@ estrutura *st_nova();
 int st_importa_grafo(estrutura *st, grafo *g);
 
 /**
- * @brief obtém o código de voo do par origem-destino com menor preço 
- *        a instância retornada deverá ser mantida, i.e., deverá ficar uma cópia dela no respetivo elemento de ‘st’
- *        NOTA: esta função será avaliada pelo tempo de execução!
+ * @brief obtém o código de voo do par origem-destino com menor preço.
  * 
  * @param st apontador para a estrutura
  * @param origem nome da cidade de origem dos voos a pesquisar
@@ -64,13 +64,11 @@ int st_importa_grafo(estrutura *st, grafo *g);
 char *st_pesquisa(estrutura *st, char *origem, char *destino);
 
 /**
- * @brief elimina todas as instâncias presentes na estrutura st e desaloca toda a memória da mesma 
- *        NOTA: esta função será avaliada pelo tempo de execução!
+ * @brief elimina todas as instâncias presentes na estrutura st e desaloca toda a memória da mesma.
+ *        
  * @param st apontador para a estrutura 
  * @return int 0 se bem-sucedido e -1 se ocorrer algum erro
  */
 int st_apaga(estrutura *st);
-
-unsigned long hash_djbm(const char *chave, int tamanho);
 
 #endif
