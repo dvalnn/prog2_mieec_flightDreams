@@ -13,7 +13,7 @@
 #define TRUE 1
 #define FALSE 0
 
-// * mensagens de erro
+//* mensagens de erro
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
@@ -36,7 +36,7 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
     if (!capacidade || !hfunc || !sfunc)
         return NULL;
 
-    tabela_dispersao *tabela_criada = (tabela_dispersao *)malloc(sizeof(tabela_dispersao));
+    tabela_dispersao *tabela_criada = (tabela_dispersao *)malloc(sizeof(*tabela_criada));
     if (check_ptr(tabela_criada, MALLOC_ERROR_MSG, "tabdispersao.c - tabela_nova() - tabela_criada"))
         return NULL;
 
@@ -56,6 +56,14 @@ tabela_dispersao *tabela_nova(int capacidade, hash_func *hfunc, sond_func *sfunc
     return tabela_criada;
 }
 
+/**
+ * @brief insere no_grafo *entrada na tabela *td num index específico
+ * 
+ * @param td tabela de dispersão
+ * @param entrada apontador do nó de origem
+ * @param index índex no vetor de arestas do nó de entrada
+ * @return int index em que o nó foi inserido
+ */
 int tabela_insere(tabela_dispersao *td, no_grafo *entrada, int index) {
     td->estado_celulas[index] = VALIDO;
     td->nos[index] = entrada;
@@ -66,34 +74,44 @@ int tabela_insere(tabela_dispersao *td, no_grafo *entrada, int index) {
 int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
     if (!td || !entrada || td->tamanho >= td->capacidade) return -1;
 
+    //* calcula o index da tabela para a o novo novo nó.
+    //* caso não haja colisões (index está vazio) insere e retorna index.
     int hash_index = (int)td->hfunc(entrada->cidade, td->capacidade);
     if (td->estado_celulas[hash_index] == VAZIO)
         return tabela_insere(td, entrada, hash_index);
 
+    //* variáveis auxiliares para ajudar com a sondagem, para resolver as colisões
     int index_sond = hash_index;
     int removido_index = -1;
-    int tentativas = 0;
+    int tentativas = 1;
 
     while (TRUE) {
-        tentativas++;
+        //* calcula o novo index recorrendo à função de sondagem
         index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
 
+        //* retorna index caso seja duplicado
         if ((td->estado_celulas[index_sond] == VALIDO) && td->nos[index_sond] == entrada)
-            return index_sond;  //? questionar
+            return index_sond;  //!!! questionar !!!
 
+        //* caso uma posição REMOVIDO seja encontrada, guarda o index e continua a sondagem
         if (removido_index == -1 && td->estado_celulas[index_sond] == REMOVIDO)
             removido_index = index_sond;
 
+        //* caso uma posição VAZIO seja encontrada, o no é inserido no index vazio
+        //* um num index REMOVIDO que tenha sido encontrado previamente
         else if (td->estado_celulas[index_sond] == VAZIO) {
             if (removido_index != -1)
                 return tabela_insere(td, entrada, removido_index);
             return tabela_insere(td, entrada, index_sond);
         }
+        //* caso a função de sondagem volte ao index inicial sem que o nó tenha sido inserido, retorna erro
         if (index_sond == hash_index) {
             if (removido_index != -1)
                 return tabela_insere(td, entrada, removido_index);
             return -1;
         }
+
+        tentativas++;
     }
 
     return -1;
