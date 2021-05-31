@@ -14,6 +14,10 @@
 #define TRUE 1
 #define FALSE 0
 
+// * tipos de pesquisa para dijkstra
+#define MAIS_RAPIDO 0
+#define MENOS_TRANSBORDOS 1
+
 // * mensagens de erro
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
@@ -389,7 +393,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     return voos_encontrados;
 }
 
-void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
+void alogoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, const int TIPO_PESQUISA) {
     heap *h = heap_nova(g->tamanho);
 
     const double INFINITY = __DBL_MAX__;
@@ -419,17 +423,21 @@ void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
         i++;
         for (int aresta = 0; aresta < no_atual->tamanho; aresta++) {
             aresta_atual = no_atual->arestas[aresta];
-            
-            if(!no_atual->dataatualizada && !no_atual->anterior)
+
+            if (!no_atual->dataatualizada && !no_atual->anterior)
                 break;
-                
+
             if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) >= 0 &&
                 (!aresta_atual->destino->dataatualizada ||
                  compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada))) {
-                
                 aresta_atual->destino->anterior = no_atual;
                 aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
-                aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
+
+                if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
+                    aresta_atual->destino->p_acumulado += 1;
+                else
+                    aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
+
                 heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
             }
         }
@@ -440,21 +448,26 @@ void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
     heap_apaga(h);
 }
 
-no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
+no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, const int TIPO_PESQUISA) {
     static no_grafo *origem_last = NULL;
-
-    if (!g || !origem || !destino || !n) return NULL;  //? partida ?
+    static int pesquisa_last = -1;
 
     no_grafo *no_origem = encontra_no(g, origem);
     no_grafo *no_destino = encontra_no(g, destino);
 
-    if (origem_last && strcmp(origem_last->cidade, origem)) {
-        dijkstra(g, no_origem, no_destino, partida);
+    if (pesquisa_last != TIPO_PESQUISA) {
+        pesquisa_last = TIPO_PESQUISA;
         origem_last = no_origem;
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+    }
+
+    if (origem_last && strcmp(origem_last->cidade, origem)) {
+        origem_last = no_origem;
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
     }
 
     if (!no_destino->anterior)
-        dijkstra(g, no_origem, no_destino, partida);
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
 
     int caminho_size = 1;
 
@@ -480,8 +493,14 @@ no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data parti
     return caminho;
 }
 
+no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
+    if (!g || !origem || !destino || !n) return NULL;
+    return dijkstra(g, origem, destino, partida, n, MAIS_RAPIDO);
+}
+
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
-    return NULL;
+    if (!g || !origem || !destino || !n) return NULL;
+    return dijkstra(g, origem, destino, partida, n, MENOS_TRANSBORDOS);
 }
 
 aresta_grafo **atualiza_lugares(char *ficheiro, grafo *g, int *n) {
@@ -720,3 +739,6 @@ void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade) {
 #undef REALLOC_ERROR_MSG
 #undef MALLOC_ERROR_MSG
 #undef FILE_ERROR_MSG
+
+#undef MAIS_RAPIDO
+#undef MENOS_TRANSBORDOS
