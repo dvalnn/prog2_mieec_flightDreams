@@ -497,71 +497,71 @@ int main() {
         printf("OK: verifica_no_apaga passou\n\n");
     }
 
-    // printf("\nTESTES DA TABELA DE DISPERSAO\n\n");
-    // tabela_dispersao *td0, *td;
+    printf("\nTESTES DA TABELA DE DISPERSAO\n\n");
+    tabela_dispersao *td0, *td;
 
-    // error = verifica_tabela_nova(&td0);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_nova\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_nova passou\n\n");
-    // }
+    error = verifica_tabela_nova(&td0);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_nova\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_nova passou\n\n");
+    }
 
-    // error = verifica_tabela_adiciona(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_adiciona\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_adiciona passou\n\n");
-    // }
+    error = verifica_tabela_adiciona(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_adiciona\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_adiciona passou\n\n");
+    }
 
-    // error = verifica_tabela_remove(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_remove\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_remove passou\n\n");
-    // }
+    error = verifica_tabela_remove(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_remove\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_remove passou\n\n");
+    }
 
-    // error = verifica_tabela_existe(td0, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_existe\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_existe passou\n\n");
-    // }
+    error = verifica_tabela_existe(td0, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_existe\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_existe passou\n\n");
+    }
 
-    // error = verifica_tabela_carrega(&td, g);
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_tabela_carrega\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_tabela_carrega passou\n\n");
-    // }
+    error = verifica_tabela_carrega(&td, g);
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_tabela_carrega\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_tabela_carrega passou\n\n");
+    }
 
-    // if (td)
-    //     tabela_apaga(td);
-    // if (td0)
-    //     tabela_apaga(td0);
+    if (td)
+        tabela_apaga(td);
+    if (td0)
+        tabela_apaga(td0);
 
     grafo_apaga(g);
 
-    // printf("\nTESTES DA ST NOVA\n\n");
+    printf("\nTESTES DA ST NOVA\n\n");
 
-    // char ficheiro1[] = "./resources/flightPlan.txt";
-    // grafo *g1 = grafo_importa(ficheiro1);
+    char ficheiro1[] = "./resources/flightPlan.txt";
+    grafo *g1 = grafo_importa(ficheiro1);
 
-    // error = verifica_st(g1);
+    error = verifica_st(g1);
 
-    // if (error) {
-    //     printf("ERRO: %d erros encontrados em verifica_st\n\n", error);
-    //     errorCount += error;
-    // } else {
-    //     printf("OK: verifica_st passou\n\n");
-    // }
+    if (error) {
+        printf("ERRO: %d erros encontrados em verifica_st\n\n", error);
+        errorCount += error;
+    } else {
+        printf("OK: verifica_st passou\n\n");
+    }
 
-    // grafo_apaga(g1);
+    grafo_apaga(g1);
 
     if (errorCount == 0)
         printf("FIM DOS TESTES: Todos os testes passaram\n");
