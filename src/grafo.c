@@ -23,6 +23,8 @@
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
 
+typedef void dijkstra_key(heap *, aresta_grafo *, no_grafo *, data);
+
 void heapify_up(heap *h, int index);
 void heapify_down(heap *h, int index);
 void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade);
@@ -393,7 +395,32 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     return voos_encontrados;
 }
 
-void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, const int TIPO_PESQUISA) {
+void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
+    if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) < 0)
+        return;
+
+    if (!aresta_atual->destino->dataatualizada ||
+        compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada)) {
+        aresta_atual->destino->anterior = no_atual;
+        aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
+
+        aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
+
+        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
+    }
+}
+
+void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
+    //* não compreendemos a razão de não ser verificada a validade das datas, mas fica de acordo com
+    //* o que está no enunciado. A data do voo apenas é comparada com a data de partida pretendida.
+    if (compare_time(aresta_atual->partida, partida) >= 0) {
+        aresta_atual->destino->anterior = no_atual;
+        aresta_atual->destino->p_acumulado += 1;
+        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
+    }
+}
+
+void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, dijkstra_key *key_func) {
     heap *h = heap_nova(g->tamanho);
 
     const double INFINITY = __DBL_MAX__;
@@ -427,19 +454,7 @@ void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data part
             if (!no_atual->dataatualizada && !no_atual->anterior)
                 break;
 
-            if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) >= 0 &&
-                (!aresta_atual->destino->dataatualizada ||
-                 compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada))) {
-                aresta_atual->destino->anterior = no_atual;
-                aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
-
-                if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
-                    aresta_atual->destino->p_acumulado += 1;
-                else
-                    aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
-
-                heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
-            }
+            key_func(h, aresta_atual, no_atual, partida);
         }
         if (no_atual == destino)
             break;
@@ -448,26 +463,38 @@ void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data part
     heap_apaga(h);
 }
 
-no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, const int TIPO_PESQUISA) {
+no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, int TIPO_PESQUISA) {
     static no_grafo *origem_last = NULL;
     static int pesquisa_last = -1;
 
     no_grafo *no_origem = encontra_no(g, origem);
     no_grafo *no_destino = encontra_no(g, destino);
 
+    if (!no_origem || !no_destino) {
+        *n = 0;
+        return NULL;
+    }
+
+    dijkstra_key *compare_func;
+
+    if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
+        compare_func = &dijkstra_transbordos;
+    else
+        compare_func = &dijkstra_mais_rapido;
+
     if (pesquisa_last != TIPO_PESQUISA) {
         pesquisa_last = TIPO_PESQUISA;
         origem_last = no_origem;
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
     }
 
     if (origem_last && strcmp(origem_last->cidade, origem)) {
         origem_last = no_origem;
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
     }
 
     if (!no_destino->anterior)
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
 
     int caminho_size = 1;
 
@@ -481,7 +508,10 @@ no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n,
     }
 
     no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
-    if (check_ptr(caminho, MALLOC_ERROR_MSG, "grafo.c - trajeto_mais_rapido - caminho")) return NULL;
+    if (check_ptr(caminho, MALLOC_ERROR_MSG, "grafo.c - trajeto_mais_rapido - caminho")) {
+        *n = 0;
+        return NULL;
+    }
 
     no_grafo *auxiliar = no_destino;
     for (int i = caminho_size - 1; i >= 0; i--) {
