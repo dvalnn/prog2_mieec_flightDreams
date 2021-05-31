@@ -89,9 +89,9 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
         //* calcula o novo index recorrendo à função de sondagem
         index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
 
-        //* retorna index caso seja duplicado
+        //* retorna erro caso seja duplicado
         if ((td->estado_celulas[index_sond] == VALIDO) && td->nos[index_sond] == entrada)
-            return index_sond;  //!!! questionar !!!
+            return -1;
 
         //* caso uma posição REMOVIDO seja encontrada, guarda o index e continua a sondagem
         if (removido_index == -1 && td->estado_celulas[index_sond] == REMOVIDO)
