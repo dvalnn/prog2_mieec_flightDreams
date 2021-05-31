@@ -393,7 +393,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     return voos_encontrados;
 }
 
-void alogoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, const int TIPO_PESQUISA) {
+void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, const int TIPO_PESQUISA) {
     heap *h = heap_nova(g->tamanho);
 
     const double INFINITY = __DBL_MAX__;
@@ -458,16 +458,16 @@ no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n,
     if (pesquisa_last != TIPO_PESQUISA) {
         pesquisa_last = TIPO_PESQUISA;
         origem_last = no_origem;
-        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
     }
 
     if (origem_last && strcmp(origem_last->cidade, origem)) {
         origem_last = no_origem;
-        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
     }
 
     if (!no_destino->anterior)
-        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
 
     int caminho_size = 1;
 
