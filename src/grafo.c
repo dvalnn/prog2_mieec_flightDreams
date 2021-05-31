@@ -14,12 +14,18 @@
 #define TRUE 1
 #define FALSE 0
 
-#define INFINITY __INT_MAX__
+// * tipos de pesquisa para dijkstra
+#define MAIS_RAPIDO 0
+#define MENOS_TRANSBORDOS 1
 
 // * mensagens de erro
 #define REALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - realloc\n"
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
+
+void heapify_up(heap *h, int index);
+void heapify_down(heap *h, int index);
+void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade);
 
 static int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
@@ -387,105 +393,114 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     return voos_encontrados;
 }
 
-void dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida) {
-    origem->dataatualizada = localtime(0);
+void alogoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, const int TIPO_PESQUISA) {
+    heap *h = heap_nova(g->tamanho);
+
+    const double INFINITY = __DBL_MAX__;
+
+    origem->dataatualizada = &partida;
+    origem->p_acumulado = 0;
     origem->anterior = NULL;
-    time_t infinity = __LONG_MAX__;
-    heap *fila_prioridade = heap_nova(g->tamanho);
+
+    heap_insere(h, origem, origem->p_acumulado);
+
     for (int i = 0; i < g->tamanho; i++) {
-        if (g->nos[i] != origem) {
-            g->nos[i]->dataatualizada = localtime(&infinity);
-            g->nos[i]->anterior = NULL;
-        }
-        heap_insere(fila_prioridade, g->nos[i], (double)mktime(g->nos[i]->dataatualizada));
+        if (g->nos[i] == origem)
+            continue;
+
+        g->nos[i]->p_acumulado = INFINITY;
+        g->nos[i]->dataatualizada = NULL;
+        g->nos[i]->anterior = NULL;
+
+        heap_insere(h, g->nos[i], g->nos[i]->p_acumulado);
     }
 
     no_grafo *no_atual = NULL;
     aresta_grafo *aresta_atual = NULL;
-
-    while (fila_prioridade->tamanho) {
-        no_atual = heap_remove(fila_prioridade);
-
+    int i = 0;
+    while (h->tamanho) {
+        no_atual = heap_remove(h);  //remove nó de menor prioridade
+        i++;
         for (int aresta = 0; aresta < no_atual->tamanho; aresta++) {
             aresta_atual = no_atual->arestas[aresta];
 
-            if (difftime(mktime(&aresta_atual->partida), mktime(&partida)) > 0 &&
-                mktime(aresta_atual->destino->dataatualizada) > mktime(&aresta_atual->chegada)) {
-                aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
-                aresta_atual->destino->anterior = no_atual;
+            if (!no_atual->dataatualizada && !no_atual->anterior)
+                break;
 
-                //? heap_atualiza_prioridade(fila_prioridade, aresta_atual->destino);
-                //! ????????????????????????????????????????????????????????????????
+            if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) >= 0 &&
+                (!aresta_atual->destino->dataatualizada ||
+                 compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada))) {
+                aresta_atual->destino->anterior = no_atual;
+                aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
+
+                if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
+                    aresta_atual->destino->p_acumulado += 1;
+                else
+                    aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
+
+                heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
             }
         }
         if (no_atual == destino)
             break;
     }
+
+    heap_apaga(h);
 }
 
-// mktime() -- data -- time_t ->long (s)
-// localtime() -- time_t -- data*
-//difftime() -- s
+no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, const int TIPO_PESQUISA) {
+    static no_grafo *origem_last = NULL;
+    static int pesquisa_last = -1;
 
-/*
-DIJKSTRA COMPLEXIDADE – HEAP
-BINÁRIO
-PROGRAMAÇÃO 2 | MIEEC | 2020/21
-function dijkstra(G, s):
-  Input: A graph G with vertices V, and a start vertex s
-  Output: Nothing
-  Purpose: Decorate nodes with shortest distance from s
- for v in V: // O(V)
- v.dist = infinity
- v.prev = null
- s.dist = 0
- PQ = PriorityQueue(V)
- while PQ not empty: // O(V)
- u = PQ.removeMin() // O(log(V))
- for all edges (u, v): // O(E)   
- if v.dist > u.dist + cost(u, v):
- v.dist = u.dist + cost(u,v)
- v.prev = u
- PQ.replaceKey(v, v.dist) // O(log(V))
-*/
+    no_grafo *no_origem = encontra_no(g, origem);
+    no_grafo *no_destino = encontra_no(g, destino);
+
+    if (pesquisa_last != TIPO_PESQUISA) {
+        pesquisa_last = TIPO_PESQUISA;
+        origem_last = no_origem;
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+    }
+
+    if (origem_last && strcmp(origem_last->cidade, origem)) {
+        origem_last = no_origem;
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+    }
+
+    if (!no_destino->anterior)
+        alogoritmo_dijkstra(g, no_origem, no_destino, partida, TIPO_PESQUISA);
+
+    int caminho_size = 1;
+
+    no_grafo *no_atual = no_destino;
+
+    while (no_atual != no_origem) {
+        no_atual = no_atual->anterior;
+        caminho_size++;
+        if (!no_atual)
+            break;
+    }
+
+    no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
+    if (check_ptr(caminho, MALLOC_ERROR_MSG, "grafo.c - trajeto_mais_rapido - caminho")) return NULL;
+
+    no_grafo *auxiliar = no_destino;
+    for (int i = caminho_size - 1; i >= 0; i--) {
+        caminho[i] = auxiliar;
+        auxiliar = auxiliar->anterior;
+    }
+
+    *n = caminho_size;
+    return caminho;
+}
 
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
-    // static no_grafo *origem_last = NULL;
-
-    // if (!g || !origem || !destino || !n) return NULL;  //? partida ?
-
-    // no_grafo *no_origem = encontra_no(g, origem);
-    // no_grafo *no_destino = encontra_no(g, destino);
-
-    // if (strcmp(origem_last->cidade, origem)) {
-    //     dijkstra(g, no_origem, no_destino, partida);
-    //     origem_last = no_origem;
-    // }
-
-    // if (!no_destino->anterior)
-    //     dijkstra(g, no_origem, no_destino, partida);
-
-    // int caminho_size = 1;
-    // no_grafo *no_atual = no_destino;
-    // while (no_atual != no_origem) {
-    //     no_atual = no_atual->anterior;
-    //     caminho_size++;
-    //     if (!no_atual)
-    //         break;
-    // }
-
-    // no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
-
-    // caminho[caminho_size - 1] = no_destino;
-    // for (int i = caminho_size - 2; i >= 0; i--)
-    //     caminho[i] = no_destino->anterior;
-
-    // return caminho;
-    return NULL;
+    if (!g || !origem || !destino || !n) return NULL;
+    return dijkstra(g, origem, destino, partida, n, MAIS_RAPIDO);
 }
 
 no_grafo **menos_transbordos(grafo *g, char *origem, char *destino, data partida, int *n) {
-    return NULL;
+    if (!g || !origem || !destino || !n) return NULL;
+    return dijkstra(g, origem, destino, partida, n, MENOS_TRANSBORDOS);
 }
 
 aresta_grafo **atualiza_lugares(char *ficheiro, grafo *g, int *n) {
@@ -647,11 +662,83 @@ grafo *grafo_importa(const char *nome_ficheiro) {
     return g;
 }
 
+// ************************************************************************************ //
+// ************************** FUNÇÕES AUXILIARES PARA A HEAP ************************** //
+// ************************************************************************************ //
+#define RAIZ (1)
+#define PAI(x) (x / 2)
+#define FILHO_ESQ(x) (x * 2)
+
+static int menor_que(elemento *e1, elemento *e2) {
+    if (e1 == NULL || e2 == NULL)
+        return 0;
+
+    return e1->prioridade < e2->prioridade;
+}
+
+void heapify_up(heap *h, int index) {
+    elemento *x = h->elementos[index];
+
+    while (index > 1 && menor_que(x, h->elementos[PAI(index)])) {
+        h->elementos[index] = h->elementos[PAI(index)];
+        index = PAI(index);
+    }
+
+    h->elementos[index] = x;
+}
+
+void heapify_down(heap *h, int index) {
+    elemento *x = h->elementos[index];
+
+    while (TRUE) {
+        int k = FILHO_ESQ(index);
+        if (k >= h->capacidade)
+            break;
+
+        if (k + 1 < h->capacidade && menor_que(h->elementos[k + 1], h->elementos[k]))
+            ++k;  // filho direito
+
+        if (!menor_que(h->elementos[k], x))
+            break;
+
+        h->elementos[index] = h->elementos[k];
+        index = k;
+    }
+
+    h->elementos[index] = x;
+}
+
+void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade) {
+    int index = -1;
+
+    for (int i = 0; i < h->capacidade; i++)
+        if (h->elementos[i] && h->elementos[i]->no == no) {
+            index = i;
+            break;
+        }
+
+    if (index == -1)
+        return;
+
+    h->elementos[index]->prioridade = prioridade;
+
+    heapify_up(h, index);
+    heapify_down(h, index);
+}
+
+#undef RAIZ
+#undef PAI
+#undef FILHO_ESQ
+// ************************************************************************************ //
+// ************************** FUNÇÕES AUXILIARES PARA A HEAP ************************** //
+// ************************************************************************************ //
+
 #undef TRUE
 #undef FALSE
-
-#undef INFINITY
 
 #undef REALLOC_ERROR_MSG
 #undef MALLOC_ERROR_MSG
 #undef FILE_ERROR_MSG
+
+#undef MAIS_RAPIDO
+#undef MENOS_TRANSBORDOS

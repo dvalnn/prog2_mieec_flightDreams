@@ -5,6 +5,7 @@
         "tabdispersao.h": "c",
         "time.h": "c",
         "ctime": "c",
-        "grafo.h": "c"
+        "grafo.h": "c",
+        "limits": "c"
     }
 }
