@@ -21,7 +21,7 @@ OBJECTS := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(OBJ)/%.o, $(SOURCES))
 DEBUG_OBJ := $(patsubst $(SRC)/%.$(SOURCE_EXTENSION), $(DEBUG)/%.dbg, $(SOURCES))
 
 #debug and valgrind flags:
-COMPILE_FLAGS = -Wall -Wextra -Wshadow -pedantic -O2 -Werror
+COMPILE_FLAGS = -Wall -Wextra -Wshadow -pedantic -Wno-unused-parameter -O2 -Werror
 DEBUG_FLAGS = -g -ggdb3
 VALGRING_FLAGS = --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt
 
