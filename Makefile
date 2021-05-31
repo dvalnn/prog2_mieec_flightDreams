@@ -33,6 +33,7 @@ $(EXECUTABLE_NAME): $(OBJECTS)
 	$(CC) $(COMPILE_FLAGS) $(OBJECTS) -o $(BIN)/$@
 
 debug: makeDebug makeBin $(EXECUTABLE_NAME).dbg
+	@echo -e '\n\033[1;33mfinished compiling\033[0m'
 
 $(EXECUTABLE_NAME).dbg: $(DEBUG_OBJ)
 	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) $(DEBUG_OBJ) -o $(BIN)/$@
@@ -42,11 +43,9 @@ $(EXECUTABLE_NAME).dbg: $(DEBUG_OBJ)
 # $< = name of first dependency of this recipe
 $(OBJ)/%.o: $(SRC)/%.$(SOURCE_EXTENSION)
 	$(CC) $(COMPILE_FLAGS) -c $< -o $@
-#	$(CC)  -c $< -o $@
 
 $(DEBUG)/%.dbg: $(SRC)/%.$(SOURCE_EXTENSION)
 	$(CC) $(COMPILE_FLAGS) $(DEBUG_FLAGS) -c $< -o $@
-#	$(CC) $(DEBUG_FLAGS) -c $< -o $@
 
 # create the build folder if it doesn't already exist
 makeBuild:
