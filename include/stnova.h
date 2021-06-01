@@ -45,8 +45,9 @@ typedef struct mapa_origens {
 /**
  * @brief cria e inicializa um mapa baseado em tabelas de dispersão que para cada par de char *cidade (origem, destino)
  *        associa o voo direto mais barato entre elas -- desempenha uma funcionalidade semelhante a um dicionário 
- *        do tipo {(origem, destino) : codigo_melhor_voo} em Python.
- *  
+ *        do tipo {(origem, destino) : codigo_melhor_voo} em Python. 
+ *        Complexidade de pesquisa: O(1) (admitindo que a quantidade de colisões na tabela é desprezável)
+ *   
  * @return estrutura* se bem-sucedido ou NULL caso contrário
  */
 estrutura *st_nova();
@@ -62,6 +63,7 @@ int st_importa_grafo(estrutura *st, grafo *g);
 
 /**
  * @brief obtém o código de voo do par origem-destino com menor preço.
+ *        Complexidade de pesquisa: O(1) (admitindo que a quantidade de colisões na tabela é desprezável)
  * 
  * @param st apontador para a estrutura
  * @param origem nome da cidade de origem dos voos a pesquisar
