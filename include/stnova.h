@@ -1,3 +1,10 @@
+/**
+ * @file stnova.h
+ * @author Tiago Amorim     up202004720 
+ *         Lucas Freitas    up202006938
+ * @remark project repo:    https://github.com/dvalnn/prog2_mieec_flightDreams
+ */
+
 /*****************************************************************/
 /*    Estrutura nova a implementar | PROG2 | MIEEC | 2020/21     */
 /*****************************************************************/

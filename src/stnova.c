@@ -1,5 +1,5 @@
 /**
- * @file grafo.c
+ * @file stnova.c
  * @author Tiago Amorim     up202004720 
  *         Lucas Freitas    up202006938
  * @remark project repo:    https://github.com/dvalnn/prog2_mieec_flightDreams
