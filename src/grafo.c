@@ -278,6 +278,7 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     //tamanho inicial do vetor de retorno
     int encontrados_size = 50;
     int n_econtrados = 0;
+
     no_grafo **voos_encontrados = calloc(encontrados_size, sizeof(*voos_encontrados));
     if (check_ptr(voos_encontrados, MALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
         return NULL;
@@ -287,21 +288,36 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     for (int node = 0; node < g->tamanho; node++)
         for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++) {
             aresta_atual = g->nos[node]->arestas[aresta];
-            
+
             //* Verifica se o destino está correto e se tanto o preço como a data de chegada são válidos
             if (!strcmp(aresta_atual->destino->cidade, destino) &&
                 !compare_time(aresta_atual->chegada, chegada) &&
                 aresta_atual->preco <= preco_max)
-                
+
                 vetor_voos_insere(voos_encontrados, &encontrados_size, &n_econtrados, g->nos[node]);
         }
-        
-    voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
-    if (n_econtrados)
-        if (check_ptr(voos_encontrados, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
-            return NULL;
-    *n = n_econtrados;
 
+    if (!n_econtrados) {
+        *n = 0;
+        free(voos_encontrados);
+        return NULL;
+    }
+
+    no_grafo **realloc_safety_vec;
+
+    if (n_econtrados < encontrados_size) {
+        realloc_safety_vec = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
+
+        if (check_ptr(realloc_safety_vec, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados")) {
+            free(voos_encontrados);
+            *n = 0;
+            return NULL;
+        }
+
+        voos_encontrados = realloc_safety_vec;
+    }
+
+    *n = n_econtrados;
     return voos_encontrados;
 }
 
