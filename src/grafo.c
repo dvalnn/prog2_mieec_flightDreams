@@ -42,6 +42,8 @@ void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b);
 static int check_ptr(void *ptr, const char *msg, const char *origem);
 aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo);
 void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node);
+void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida);
+void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida);
 
 //* funções adicionais para adaptar a heap ao algoritmo de dijkstra
 void heapify_up(heap *h, int index);
@@ -319,31 +321,6 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 
     *n = n_econtrados;
     return voos_encontrados;
-}
-
-void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
-    if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) < 0)
-        return;
-
-    if (!aresta_atual->destino->dataatualizada ||
-        compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada)) {
-        aresta_atual->destino->anterior = no_atual;
-        aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
-
-        aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
-
-        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
-    }
-}
-
-void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
-    //* não compreendemos a razão de não ser verificada a validade das datas, mas fica de acordo com
-    //* o que está no enunciado. A data do voo apenas é comparada com a data de partida pretendida.
-    if (compare_time(aresta_atual->partida, partida) >= 0) {
-        aresta_atual->destino->anterior = no_atual;
-        aresta_atual->destino->p_acumulado += 1;
-        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
-    }
 }
 
 void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, dijkstra_key *key_func) {
@@ -752,6 +729,47 @@ void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_
 
     nos_com_voo[*n_voos] = node;
     (*n_voos)++;
+}
+
+/**
+ * @brief função de comparação para o algoritmo de disktra com base nas datas dos voos.
+ * 
+ * @param h 
+ * @param aresta_atual 
+ * @param no_atual 
+ * @param partida 
+ */
+void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
+    if (compare_time(aresta_atual->partida, *no_atual->dataatualizada) < 0)
+        return;
+
+    if (!aresta_atual->destino->dataatualizada ||
+        compare_time(*aresta_atual->destino->dataatualizada, aresta_atual->chegada)) {
+        aresta_atual->destino->anterior = no_atual;
+        aresta_atual->destino->dataatualizada = &aresta_atual->chegada;
+
+        aresta_atual->destino->p_acumulado = (double)mktime(aresta_atual->destino->dataatualizada);
+
+        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
+    }
+}
+
+/**
+ * @brief função de comparação básica para o algoritmo de disktra.
+ * 
+ * @param h 
+ * @param aresta_atual 
+ * @param no_atual 
+ * @param partida 
+ */
+void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
+    //* O enunciado requer que as datas dos voos entre nós não sejam tidas em conta,
+    //* Deste modo, data do voo apenas é comparada com a data de partida pretendida.
+    if (compare_time(aresta_atual->partida, partida) >= 0) {
+        aresta_atual->destino->anterior = no_atual;
+        aresta_atual->destino->p_acumulado += 1;
+        heap_atualiza_prioridade(h, aresta_atual->destino, aresta_atual->destino->p_acumulado);
+    }
 }
 
 // ************************************************************************************ //
