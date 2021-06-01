@@ -344,13 +344,16 @@ aresta_grafo **atualiza_lugares(char *ficheiro, grafo *g, int *n) {
 
     char codigo[15] = {0};
     int lugares, aresta_pos;
-
     int vec_size = 10, n_removidas = 0;
+
     aresta_grafo **arestas_removidas = (aresta_grafo **)calloc(vec_size, sizeof(*arestas_removidas));
     if (check_ptr(arestas_removidas, MALLOC_ERROR_MSG, "grafo.c - atualiza_lugares() - arestas_removidas"))
         return NULL;
 
     no_grafo *no_atual = NULL;
+
+    //* %15[^,] - Lê todos os caracteres até encontrar uma vírgula (máx 14 + '\0' characteres) e guarda numa string.
+    //* %*c Lê um caracter e descarta-o -> usado para ler e ignorar a vírgula de separação.
     while (fscanf(f_in, "%15[^,]%*c %d ", codigo, &lugares) == 2) {
         no_atual = encontra_voo(g, codigo, &aresta_pos);
         if (!no_atual)
