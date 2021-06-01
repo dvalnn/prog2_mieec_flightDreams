@@ -30,20 +30,23 @@
 #define MALLOC_ERROR_MSG "\n[ERRO] - Falha ao alocar memória. - malloc/calloc\n"
 #define FILE_ERROR_MSG "\n[ERRO] - Falha ao abrir ficheiro\n"
 
+//* typedef para facilitar a leitura e utilização do apontador para função
 typedef void dijkstra_key(heap *, aresta_grafo *, no_grafo *, data);
 
+//* funções auxiliares
+int compare_time(data a, data b);
+int encontra_no_idx(grafo *g, char *cidade);
+void no_grafo_swap(no_grafo **a, no_grafo **b);
+void aresta_vetor_apaga(no_grafo *node, int aresta_index);
+void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b);
+static int check_ptr(void *ptr, const char *msg, const char *origem);
+aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo);
+void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node);
+
+//* funções adicionais para adaptar a heap ao algoritmo de dijkstra
 void heapify_up(heap *h, int index);
 void heapify_down(heap *h, int index);
 void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade);
-
-static int check_ptr(void *ptr, const char *msg, const char *origem) {
-    if (!ptr) {
-        printf("%s", msg);
-        printf("[INFO] - Erro originado por: \"%s\"\n", origem);
-        return TRUE;
-    }
-    return FALSE;
-}
 
 grafo *grafo_novo() {
     grafo *g = (grafo *)malloc(sizeof(grafo));
@@ -63,18 +66,6 @@ no_grafo *encontra_no(grafo *g, char *cidade) {
             return g->nos[i];
     }
     return NULL;
-}
-
-int encontra_no_idx(grafo *g, char *cidade) {
-    if (!g || !cidade)
-        return -1;
-
-    // pesquisa por cidade no vetor de nós
-    for (int i = 0; i < g->tamanho; i++) {
-        if (strcmp(g->nos[i]->cidade, cidade) == 0)
-            return i;
-    }
-    return -1;
 }
 
 no_grafo *no_insere(grafo *g, char *cidade) {
@@ -132,28 +123,6 @@ int existe_aresta(no_grafo *origem, no_grafo *destino, char *codigo) {
     }
 
     return 0;
-}
-
-/**
- * @brief tem função semelhante a existe_aresta(), mas retorna um apontador para a (primeira) aresta encontrada.
- *        Caso código seja NULL, não é tido em conta para a seleção de aresta.
- * 
- * @param origem 
- * @param destino 
- * @param codigo 
- * @return aresta_grafo* apontador para a aresta encontrada
- */
-aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo) {
-    if (!origem || !destino)
-        return NULL;
-
-    //pesquisa em todas as arestas se existe
-    for (int i = 0; i < origem->tamanho; i++) {
-        if ((origem->arestas[i]->destino == destino) && !strcmp(origem->arestas[i]->codigo, codigo))
-            return origem->arestas[i];
-    }
-
-    return NULL;
 }
 
 int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companhia, data partida, data chegada, float preco, int lugares) {
@@ -221,54 +190,6 @@ int cria_aresta(no_grafo *origem, no_grafo *destino, char *codigo, char *companh
     origem->arestas[origem->tamanho - 1] = ag;
 
     return 0;
-}
-
-/**
- * @brief troca a posição entre dois nós do grafo
- * 
- * @param a &no_grafo * a
- * @param b &no_grafo * b
- */
-void no_grafo_swap(no_grafo **a, no_grafo **b) {
-    no_grafo *aux;
-    aux = *a;
-    *a = *b;
-    *b = aux;
-}
-
-/**
- * @brief troca a posição entre duas arestas de um nó
- * 
- * @param a &aresta_grafo * a
- * @param b &aresta_grafo * b
- */
-void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
-    aresta_grafo *aux;
-    aux = *a;
-    *a = *b;
-    *b = aux;
-}
-
-/**
- * @brief remove uma aresta do vetor de arestas do no, conservando ordenação.
- * 
- * @param node nó de onde remover a aresta
- * @param aresta_index indíce da aresta a ser removida
- */
-void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
-    for (int pos = aresta_index; pos < node->tamanho - 1; pos++)
-        aresta_grafo_swap(&node->arestas[pos], &node->arestas[pos + 1]);
-
-    aresta_apaga(node->arestas[node->tamanho - 1]);
-    node->tamanho--;
-
-    aresta_grafo **new_vec = (aresta_grafo **)realloc(node->arestas, (node->tamanho) * sizeof(node->arestas[0]));
-
-    if (node->tamanho)
-        if (check_ptr(new_vec, REALLOC_ERROR_MSG, "grafo.c - aresta_vetor_apaga() - node->arestas realloc"))
-            return;
-
-    node->arestas = new_vec;
 }
 
 no_grafo *no_remove(grafo *g, char *cidade) {
@@ -351,27 +272,8 @@ no_grafo *encontra_voo(grafo *g, char *codigo, int *aresta_pos) {
     return NULL;
 }
 
-int compare_time(data a, data b) {
-    return (a.tm_year - b.tm_year) * 100 + (a.tm_mon - b.tm_mon) * 10 + (a.tm_mday - b.tm_mday);
-}
-
-void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node) {
-    for (int i = 0; i < (*n_voos); i++)
-        if (nos_com_voo[i] == node)
-            return;
-
-    if (n_voos == capacidade) {
-        nos_com_voo = realloc(nos_com_voo, ((*capacidade) * 2) * sizeof(*n_voos));
-        //TODO: check_ptr também?
-        (*capacidade) *= 2;
-    }
-
-    nos_com_voo[*n_voos] = node;
-    (*n_voos)++;
-}
-
 no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco_max, int *n) {
-    if (!g || !destino || preco_max <= 0 || !n) return NULL;  //? chegada?
+    if (!g || !destino || preco_max <= 0 || !n) return NULL;
 
     //tamanho inicial do vetor de retorno
     int encontrados_size = 50;
@@ -385,14 +287,15 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
     for (int node = 0; node < g->tamanho; node++)
         for (int aresta = 0; aresta < g->nos[node]->tamanho; aresta++) {
             aresta_atual = g->nos[node]->arestas[aresta];
-
+            
+            //* Verifica se o destino está correto e se tanto o preço como a data de chegada são válidos
             if (!strcmp(aresta_atual->destino->cidade, destino) &&
                 !compare_time(aresta_atual->chegada, chegada) &&
                 aresta_atual->preco <= preco_max)
-
+                
                 vetor_voos_insere(voos_encontrados, &encontrados_size, &n_econtrados, g->nos[node]);
         }
-
+        
     voos_encontrados = realloc(voos_encontrados, n_econtrados * sizeof(*voos_encontrados));
     if (n_econtrados)
         if (check_ptr(voos_encontrados, REALLOC_ERROR_MSG, "grafo.c - pesquisa_avancada() - voos_encontrados"))
@@ -700,6 +603,142 @@ grafo *grafo_importa(const char *nome_ficheiro) {
 }
 
 // ************************************************************************************ //
+// ******************************** FUNÇÕES AUXILIARES ******************************** //
+// ************************************************************************************ //
+
+static int check_ptr(void *ptr, const char *msg, const char *origem) {
+    if (!ptr) {
+        printf("%s", msg);
+        printf("[INFO] - Erro originado por: \"%s\"\n", origem);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/**
+ * @brief retorna index do nó encontrado
+ * 
+ * @param g 
+ * @param cidade 
+ * @return int 
+ */
+int encontra_no_idx(grafo *g, char *cidade) {
+    if (!g || !cidade)
+        return -1;
+
+    // pesquisa por cidade no vetor de nós
+    for (int i = 0; i < g->tamanho; i++) {
+        if (strcmp(g->nos[i]->cidade, cidade) == 0)
+            return i;
+    }
+    return -1;
+}
+
+/**
+ * @brief tem função semelhante a existe_aresta(), mas retorna um apontador para a (primeira) aresta encontrada.
+ *        Caso código seja NULL, não é tido em conta para a seleção de aresta.
+ * 
+ * @param origem 
+ * @param destino 
+ * @param codigo 
+ * @return aresta_grafo* apontador para a aresta encontrada
+ */
+aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo) {
+    if (!origem || !destino)
+        return NULL;
+
+    //pesquisa em todas as arestas se existe
+    for (int i = 0; i < origem->tamanho; i++) {
+        if ((origem->arestas[i]->destino == destino) && !strcmp(origem->arestas[i]->codigo, codigo))
+            return origem->arestas[i];
+    }
+
+    return NULL;
+}
+
+/**
+ * @brief troca a posição entre dois nós do grafo
+ * 
+ * @param a &no_grafo * a
+ * @param b &no_grafo * b
+ */
+void no_grafo_swap(no_grafo **a, no_grafo **b) {
+    no_grafo *aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
+}
+
+/**
+ * @brief troca a posição entre duas arestas de um nó
+ * 
+ * @param a &aresta_grafo * a
+ * @param b &aresta_grafo * b
+ */
+void aresta_grafo_swap(aresta_grafo **a, aresta_grafo **b) {
+    aresta_grafo *aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
+}
+
+/**
+ * @brief remove uma aresta do vetor de arestas do no, conservando ordenação.
+ * 
+ * @param node nó de onde remover a aresta
+ * @param aresta_index indíce da aresta a ser removida
+ */
+void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
+    for (int pos = aresta_index; pos < node->tamanho - 1; pos++)
+        aresta_grafo_swap(&node->arestas[pos], &node->arestas[pos + 1]);
+
+    aresta_apaga(node->arestas[node->tamanho - 1]);
+    node->tamanho--;
+
+    aresta_grafo **new_vec = (aresta_grafo **)realloc(node->arestas, (node->tamanho) * sizeof(node->arestas[0]));
+
+    if (node->tamanho)
+        if (check_ptr(new_vec, REALLOC_ERROR_MSG, "grafo.c - aresta_vetor_apaga() - node->arestas realloc"))
+            return;
+
+    node->arestas = new_vec;
+}
+
+/**
+ * @brief compara duas datas com base no ano, mês e dia.
+ * 
+ * @param a 
+ * @param b 
+ * @return int a - b
+ */
+int compare_time(data a, data b) {
+    return (a.tm_year - b.tm_year) * 100 + (a.tm_mon - b.tm_mon) * 10 + (a.tm_mday - b.tm_mday);
+}
+
+/**
+ * @brief Insere e gere os elementos do vetor de voos retornado pela função pesquisa_avançada-
+ * 
+ * @param nos_com_voo vetor de nós
+ * @param capacidade capacidade total do vetor
+ * @param n_voos tamanho atual to vetor
+ * @param node nó a inserir
+ */
+void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node) {
+    for (int i = 0; i < (*n_voos); i++)
+        if (nos_com_voo[i] == node)
+            return;
+
+    if (n_voos == capacidade) {
+        nos_com_voo = realloc(nos_com_voo, ((*capacidade) * 2) * sizeof(*n_voos));
+        //TODO: check_ptr também?
+        (*capacidade) *= 2;
+    }
+
+    nos_com_voo[*n_voos] = node;
+    (*n_voos)++;
+}
+
+// ************************************************************************************ //
 // ************************** FUNÇÕES AUXILIARES PARA A HEAP ************************** //
 // ************************************************************************************ //
 #define RAIZ (1)
@@ -766,9 +805,6 @@ void heap_atualiza_prioridade(heap *h, no_grafo *no, double prioridade) {
 #undef RAIZ
 #undef PAI
 #undef FILHO_ESQ
-// ************************************************************************************ //
-// ************************** FUNÇÕES AUXILIARES PARA A HEAP ************************** //
-// ************************************************************************************ //
 
 #undef TRUE
 #undef FALSE
