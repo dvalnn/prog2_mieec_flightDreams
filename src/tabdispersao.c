@@ -146,9 +146,8 @@ int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
         tentativas++;
         index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
 
-        //* caso todas a função de sondagem volte ao index original retornado por td->hfunc
-        //* retorna erro de modo a evitar loops infinitos - caso extremo em que só exitem células de
-        //* estado -1 e 1 e o nó a remover não existe na tabela.
+        //* edge case: A função de sondagem volta ao index original retornado por td->hfunc sem encontrar o nó.
+        //* Retorna erro de modo a evitar loops infinitos situação em que não existem células de estado VAZIO.
         if (index_sond == hash_index)
             return -1;
     }
@@ -180,6 +179,10 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
 
         tentativas++;
         index = td->sfunc(hash_index, tentativas, td->capacidade);
+
+        //* situação semelhante ao edge case abordado em tabela_remove
+        if (index == hash_index)
+            return -1;
     }
     return -1;
 }
