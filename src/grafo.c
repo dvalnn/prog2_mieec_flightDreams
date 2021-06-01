@@ -44,6 +44,8 @@ aresta_grafo *encontra_aresta(no_grafo *origem, no_grafo *destino, char *codigo)
 void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_grafo *node);
 void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida);
 void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida);
+no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, int TIPO_PESQUISA);
+void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, dijkstra_key *key_func);
 
 //* funções adicionais para adaptar a heap ao algoritmo de dijkstra
 void heapify_up(heap *h, int index);
@@ -321,109 +323,6 @@ no_grafo **pesquisa_avancada(grafo *g, char *destino, data chegada, double preco
 
     *n = n_econtrados;
     return voos_encontrados;
-}
-
-void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, dijkstra_key *key_func) {
-    heap *h = heap_nova(g->tamanho);
-
-    const double INFINITY = __DBL_MAX__;
-
-    origem->dataatualizada = &partida;
-    origem->p_acumulado = 0;
-    origem->anterior = NULL;
-
-    heap_insere(h, origem, origem->p_acumulado);
-
-    for (int i = 0; i < g->tamanho; i++) {
-        if (g->nos[i] == origem)
-            continue;
-
-        g->nos[i]->p_acumulado = INFINITY;
-        g->nos[i]->dataatualizada = NULL;
-        g->nos[i]->anterior = NULL;
-
-        heap_insere(h, g->nos[i], g->nos[i]->p_acumulado);
-    }
-
-    no_grafo *no_atual = NULL;
-    aresta_grafo *aresta_atual = NULL;
-    int i = 0;
-    while (h->tamanho) {
-        no_atual = heap_remove(h);  //remove nó de menor prioridade
-        i++;
-        for (int aresta = 0; aresta < no_atual->tamanho; aresta++) {
-            aresta_atual = no_atual->arestas[aresta];
-
-            if (!no_atual->dataatualizada && !no_atual->anterior)
-                break;
-
-            key_func(h, aresta_atual, no_atual, partida);
-        }
-        if (no_atual == destino)
-            break;
-    }
-
-    heap_apaga(h);
-}
-
-no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, int TIPO_PESQUISA) {
-    static no_grafo *origem_last = NULL;
-    static int pesquisa_last = -1;
-
-    no_grafo *no_origem = encontra_no(g, origem);
-    no_grafo *no_destino = encontra_no(g, destino);
-
-    if (!no_origem || !no_destino) {
-        *n = 0;
-        return NULL;
-    }
-
-    dijkstra_key *compare_func;
-
-    if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
-        compare_func = &dijkstra_transbordos;
-    else
-        compare_func = &dijkstra_mais_rapido;
-
-    if (pesquisa_last != TIPO_PESQUISA) {
-        pesquisa_last = TIPO_PESQUISA;
-        origem_last = no_origem;
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
-    }
-
-    if (origem_last && strcmp(origem_last->cidade, origem)) {
-        origem_last = no_origem;
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
-    }
-
-    if (!no_destino->anterior)
-        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
-
-    int caminho_size = 1;
-
-    no_grafo *no_atual = no_destino;
-
-    while (no_atual != no_origem) {
-        no_atual = no_atual->anterior;
-        caminho_size++;
-        if (!no_atual)
-            break;
-    }
-
-    no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
-    if (check_ptr(caminho, MALLOC_ERROR_MSG, "grafo.c - trajeto_mais_rapido - caminho")) {
-        *n = 0;
-        return NULL;
-    }
-
-    no_grafo *auxiliar = no_destino;
-    for (int i = caminho_size - 1; i >= 0; i--) {
-        caminho[i] = auxiliar;
-        auxiliar = auxiliar->anterior;
-    }
-
-    *n = caminho_size;
-    return caminho;
 }
 
 no_grafo **trajeto_mais_rapido(grafo *g, char *origem, char *destino, data partida, int *n) {
@@ -705,7 +604,9 @@ void aresta_vetor_apaga(no_grafo *node, int aresta_index) {
  * @return int a - b
  */
 int compare_time(data a, data b) {
-    return (a.tm_year - b.tm_year) * 100 + (a.tm_mon - b.tm_mon) * 10 + (a.tm_mday - b.tm_mday);
+    return (a.tm_year - b.tm_year) * 100 +
+           (a.tm_mon - b.tm_mon) * 10 +
+           (a.tm_mday - b.tm_mday);
 }
 
 /**
@@ -723,7 +624,6 @@ void vetor_voos_insere(no_grafo **nos_com_voo, int *capacidade, int *n_voos, no_
 
     if (n_voos == capacidade) {
         nos_com_voo = realloc(nos_com_voo, ((*capacidade) * 2) * sizeof(*n_voos));
-        //TODO: check_ptr também?
         (*capacidade) *= 2;
     }
 
@@ -763,8 +663,8 @@ void dijkstra_mais_rapido(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atua
  * @param partida 
  */
 void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atual, data partida) {
-    //* O enunciado requer que as datas dos voos entre nós não sejam tidas em conta,
-    //* Deste modo, data do voo apenas é comparada com a data de partida pretendida.
+    //* O enunciado requer que as datas dos voos entre nós intermédios não sejam tidas em conta.
+    //* Deste modo, data do voo apenas é comparada com a data original de partida da origem.
     if (compare_time(aresta_atual->partida, partida) >= 0) {
         aresta_atual->destino->anterior = no_atual;
         aresta_atual->destino->p_acumulado += 1;
@@ -772,9 +672,150 @@ void dijkstra_transbordos(heap *h, aresta_grafo *aresta_atual, no_grafo *no_atua
     }
 }
 
+/**
+ * @brief Implementação tradicional do algoritmo de dijkstra com recurso a uma heap mutável.
+ *        Marca nós com o melhor trajeto desde a origem, até encontrar o destino pretendido.
+ *        Não chamar esta função individualemente -> chamar o wrapper dijkstra()
+ * 
+ * @param g grafo
+ * @param origem nó de origem
+ * @param destino nó de destino
+ * @param partida data de partida a usar como base de referência.
+ * @param key_func função de comparação a utilizar na determinação do custo da viagem entre nós.
+ */
+void algoritmo_dijkstra(grafo *g, no_grafo *origem, no_grafo *destino, data partida, dijkstra_key *key_func) {
+    heap *h = heap_nova(g->tamanho);
+
+    const double INFINITY = __DBL_MAX__;
+
+    origem->dataatualizada = &partida;
+    origem->p_acumulado = 0;
+    origem->anterior = NULL;
+
+    heap_insere(h, origem, origem->p_acumulado);
+
+    //* para todos os nós exceto a origem, marca a distância como infinita (desconhecida) e introduz na heap.
+    for (int i = 0; i < g->tamanho; i++) {
+        if (g->nos[i] == origem)
+            continue;
+
+        g->nos[i]->p_acumulado = INFINITY;
+        g->nos[i]->dataatualizada = NULL;
+        g->nos[i]->anterior = NULL;
+
+        heap_insere(h, g->nos[i], g->nos[i]->p_acumulado);
+    }
+
+    no_grafo *no_atual = NULL;
+    aresta_grafo *aresta_atual = NULL;
+
+    while (h->tamanho) {
+        no_atual = heap_remove(h);  //* remove nó de menor prioridade
+
+        for (int aresta = 0; aresta < no_atual->tamanho; aresta++) {
+            aresta_atual = no_atual->arestas[aresta];
+
+            //* salvaguarda para evitar erros de memória e crashes nos strcmp() da key_func()
+            //* edge case em que não existe rota possível a partir da origem para o destino
+            if (no_atual->p_acumulado == INFINITY || (!no_atual->dataatualizada && !no_atual->anterior))
+                break;
+
+            key_func(h, aresta_atual, no_atual, partida);
+        }
+
+        if (no_atual == destino)
+            break;
+    }
+
+    heap_apaga(h);
+}
+
+/**
+ * @brief Implementação tradicional do algoritmo de dijkstra com recurso a uma heap mutável.
+ *        Marca nós com o melhor trajeto desde a origem, até encontrar o destino pretendido
+ *        e retorna vetor de apontadores para o caminho encontrado entre a origem e o destino.
+ * 
+ * @remark Esta função funciona como um wrapper para a função de implementação do algoritmo -
+ *         algoritmo_dijsktra() - que não deve ser chamada individualemente, de modo a aumentar
+ *         eficiência do programa;
+ * 
+ * @param g grafo
+ * @param origem nó de origem 
+ * @param destino nó de destino
+ * @param partida data de partida a usar como base de referência. 
+ * @param n variável para atualizar com o tamanho do vetor a ser retornado
+ * @param TIPO_PESQUISA tipo de pesquisa a efetuar (Trajeto mais rápido / Menos transbordos)
+ * @return no_grafo** vetor de apontadores para os nós do caminho encontrado entre a origem e o destino.
+ */
+no_grafo **dijkstra(grafo *g, char *origem, char *destino, data partida, int *n, int TIPO_PESQUISA) {
+    //* variáveis estáticas para guardar os parâmetros da pesquisa anterior
+    static no_grafo *origem_last = NULL;
+    static int pesquisa_last = -1;
+
+    no_grafo *no_origem = encontra_no(g, origem);
+    no_grafo *no_destino = encontra_no(g, destino);
+
+    if (!no_origem || !no_destino) {
+        *n = 0;
+        return NULL;
+    }
+
+    dijkstra_key *compare_func;
+
+    //* atribui ao apontador compare_func o endereço da função de pesquisa correta
+    if (TIPO_PESQUISA == MENOS_TRANSBORDOS)
+        compare_func = &dijkstra_transbordos;
+    else
+        compare_func = &dijkstra_mais_rapido;
+
+    if (pesquisa_last != TIPO_PESQUISA) {
+        pesquisa_last = TIPO_PESQUISA;
+        origem_last = no_origem;
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
+    }
+
+    if (origem_last != no_origem) {
+        origem_last = no_origem;
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
+    }
+
+    if (!no_destino->anterior)
+        algoritmo_dijkstra(g, no_origem, no_destino, partida, compare_func);
+
+    int caminho_size = 1;
+
+    no_grafo *no_atual = no_destino;
+
+    //* calcula o tamanho do caminho encontrado, de modo a
+    //* alocar o vetor de retorno com o tamanho certo
+    while (no_atual != no_origem) {
+        no_atual = no_atual->anterior;
+        caminho_size++;
+        if (!no_atual)
+            break;
+    }
+
+    no_grafo **caminho = (no_grafo **)malloc(caminho_size * sizeof(*caminho));
+    if (check_ptr(caminho, MALLOC_ERROR_MSG, "grafo.c - trajeto_mais_rapido - caminho")) {
+        *n = 0;
+        return NULL;
+    }
+
+    //* recria o caminho encontrado e preenche o vetor de retorno
+    no_grafo *auxiliar = no_destino;
+    for (int i = caminho_size - 1; i >= 0; i--) {
+        caminho[i] = auxiliar;
+        auxiliar = auxiliar->anterior;
+    }
+
+    *n = caminho_size;
+    return caminho;
+}
+
 // ************************************************************************************ //
 // ************************** FUNÇÕES AUXILIARES PARA A HEAP ************************** //
 // ************************************************************************************ //
+
 #define RAIZ (1)
 #define PAI(x) (x / 2)
 #define FILHO_ESQ(x) (x * 2)
