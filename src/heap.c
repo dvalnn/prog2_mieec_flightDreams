@@ -1,3 +1,10 @@
+/**
+ * @file grafo.c
+ * @author Tiago Amorim     up202004720 
+ *         Lucas Freitas    up202006938
+ * @remark project repo:    https://github.com/dvalnn/prog2_mieec_flightDreams
+ */
+
 /*****************************************************************/
 /*   Fila de prioridade / min-heap | PROG2 | MIEEC | 2017/18     */
 /*****************************************************************/
