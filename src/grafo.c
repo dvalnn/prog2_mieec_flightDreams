@@ -501,6 +501,14 @@ grafo *grafo_importa(const char *nome_ficheiro) {
 // ******************************** FUNÇÕES AUXILIARES ******************************** //
 // ************************************************************************************ //
 
+/**
+ * @brief Verifica se o pointer passado em ptr é NULL e imprime mensagens de erro.
+ *
+ * @param ptr pointer a verificar
+ * @param msg Mensagem de erro a imprimir 
+ * @param origem Mensagem adicional com origem do erro
+ * @return int 1 se o ptr for NULL, senão 0
+ */
 static int check_ptr(void *ptr, const char *msg, const char *origem) {
     if (!ptr) {
         printf("%s", msg);
