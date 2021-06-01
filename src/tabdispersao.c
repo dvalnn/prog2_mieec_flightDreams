@@ -109,12 +109,14 @@ int tabela_adiciona(tabela_dispersao *td, no_grafo *entrada) {
         else if (td->estado_celulas[index_sond] == VAZIO) {
             if (removido_index != -1)
                 return tabela_insere(td, entrada, removido_index);
+            
             return tabela_insere(td, entrada, index_sond);
         }
-        //* caso a função de sondagem volte ao index inicial sem que o nó tenha sido inserido, retorna erro
+        //* caso a função de sondagem volte ao index inicial sem que o nó tenho sido inserido
         if (index_sond == hash_index) {
             if (removido_index != -1)
                 return tabela_insere(td, entrada, removido_index);
+            
             return -1;
         }
 
@@ -171,16 +173,18 @@ int tabela_existe(tabela_dispersao *td, const char *cidade) {
     unsigned long index = hash_index;
 
     int tentativas = 0;
+
     while (TRUE) {
         if (td->estado_celulas[index] == VALIDO && !strcmp(td->nos[index]->cidade, cidade))
             return index;
+
         else if (td->estado_celulas[index] == VAZIO)
             return -1;
 
         tentativas++;
         index = td->sfunc(hash_index, tentativas, td->capacidade);
 
-        //* situação semelhante ao edge case abordado em tabela_remove
+        //* O mesmo caso ao abordado em tabela_remove
         if (index == hash_index)
             return -1;
     }
@@ -193,6 +197,7 @@ tabela_dispersao *tabela_carrega(grafo *g, int capacidade) {
     tabela_dispersao *td_a_preencher = tabela_nova(capacidade, hash_krm, sond_rh);
     if (check_ptr(td_a_preencher, TD_CREATION_ERROR_MSG, "tabdispersao.c - tabela_carrega() - td_a_preencher"))
         return NULL;
+
     for (int i = 0; g->tamanho > i; i++)
         if (tabela_adiciona(td_a_preencher, g->nos[i]) == -1)
             return NULL;
