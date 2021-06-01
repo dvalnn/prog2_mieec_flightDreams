@@ -138,11 +138,19 @@ int tabela_remove(tabela_dispersao *td, no_grafo *saida) {
             td->tamanho--;
             break;
         }
+
+        //* no_grafo *saída não existe na tabela, retorna erro
         if (td->estado_celulas[index_sond] == VAZIO)
             return -1;
 
         tentativas++;
         index_sond = td->sfunc(hash_index, tentativas, td->capacidade);
+
+        //* caso todas a função de sondagem volte ao index original retornado por td->hfunc
+        //* retorna erro de modo a evitar loops infinitos - caso extremo em que só exitem células de
+        //* estado -1 e 1 e o nó a remover não existe na tabela.
+        if (index_sond == hash_index)
+            return -1;
     }
     return 0;
 }
